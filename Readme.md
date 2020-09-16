@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Богдан Котов](https://up.htmlacademy.ru/javascript/21/user/1473721).
-* Наставник: `Неизвестно`.
+* Наставник: [Алексей Михеев](https://htmlacademy.ru/profile/id454457).
 
 ---
 
