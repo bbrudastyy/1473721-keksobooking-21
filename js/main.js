@@ -16,7 +16,8 @@ const PRICE = 10000;
 const map = document.querySelector(`.map`);
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 const pinContainer = document.querySelector(`.map__pins`);
-
+const cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup`);
+// const cardPhotoTemplate = document.querySelector(`#card`).content.querySelector(`.popup__photo`);
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
@@ -88,9 +89,49 @@ function showPins() {
   pinContainer.appendChild(template);
 }
 
+function showCard() {
+  const rooms = getRooms();
+  const template = getItemCard(rooms);
+  const mapFilter = document.querySelector(`.map__filters-container`);
+  const mapFilterParent = mapFilter.parentNode;
+  mapFilterParent.insertBefore(template, mapFilter);
+}
+
+function getRoomType(type) {
+  if (type === `flat`) {
+    type = `Квартира`;
+  } else if (type === `bungalow`) {
+    type = `Бунгало`;
+  } else if (type === `house`) {
+    type = `Дом`;
+  } else {
+    type = `Дворец`;
+  }
+
+  return type;
+}
+
+function getItemCard(rooms) {
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < rooms.length; i++) {
+    const cardElement = cardTemplate.cloneNode(true);
+    cardElement.querySelector(`.popup__title`).textContent = rooms[i].offer.title;
+    cardElement.querySelector(`.popup__text--address`).textContent = rooms[i].offer.address;
+    cardElement.querySelector(`.popup__text--price`).textContent = `${rooms[i].offer.price}₽/ночь`;
+    cardElement.querySelector(`.popup__type`).textContent = getRoomType(rooms[i].offer.type);
+    cardElement.querySelector(`.popup__text--capacity`).textContent = `${rooms[i].offer.rooms} комнат для  ${rooms[i].offer.guests} гостей`;
+    cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${rooms[i].offer.checkin}, выезд до ${rooms[i].offer.checkout}`;
+    cardElement.querySelector(`.popup__description`).textContent = rooms[i].offer.description;
+    fragment.appendChild(cardElement);
+  }
+  return fragment;
+}
+
 function loadAd() {
   map.classList.remove(`map--faded`);
   showPins();
+  showCard();
 }
 
 loadAd();
