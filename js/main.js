@@ -94,15 +94,15 @@ const activationMap = () => {
   map.classList.remove(`map--faded`);
   fillingForm.classList.remove(`ad-form--disabled`);
   changeDisabledItems();
-  getPinAddress(MapState.ACTIVE);
+  pinAddress(MapState.ACTIVE);
 };
 
-const getPinAddress = (state) => {
+const pinAddress = (state) => {
   switch (state) {
-    case `active`:
+    case MapState.ACTIVE:
       document.querySelector(`#address`).value = `${mapPinMain.offsetLeft + PinSize.MAIN_PIN_WIDTH / 2},${mapPinMain.offsetTop + PinSize.MAIN_PIN_HEIGHT + PinSize.MAIN_PIN_NEEDLE}`;
       break;
-    case `disabled`:
+    case MapState.DISABLED:
       document.querySelector(`#address`).value = `${mapPinMain.offsetLeft + PinSize.MAIN_PIN_WIDTH / 2},${mapPinMain.offsetTop + PinSize.MAIN_PIN_HEIGHT}`;
       break;
   }
@@ -284,7 +284,7 @@ const getItemCard = (room) => {
 };
 
 const loadAd = () => {
-  getPinAddress(MapState.DISABLED);
+  pinAddress(MapState.DISABLED);
   changeDisabledItems();
   showCard();
 };
