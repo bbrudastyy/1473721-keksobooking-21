@@ -225,14 +225,63 @@ const showPins = () => {
   const rooms = getRooms();
   const template = getTemplate(rooms);
   pinContainer.appendChild(template);
+  showCardPopup();
 };
+
+
+// const getIndexPin = () => {
+//   const pins = document.querySelectorAll(`.map__pin`);
+
+//     pins.forEach(function (pin, index) {
+
+//       if (!pin.classList.contains(`map__pin--main`)) {
+//         pin.addEventListener(`click`, function () {
+//           // console.log(index-1);
+//           i = index - 1;
+//           console.log(index);
+//         })
+//       }
+//     });
+//     return i;
+
+//   // return help();
+//   // console.log(help());
+//   // return help();
+//   // return i;
+// };
+
+// const getPin = () => {
+//   const pins = document.querySelectorAll(`.map__pin`);
+//   pins.forEach(function (pin, index) {
+//     if (!pin.classList.contains(`map__pin--main`)) {
+//       getIndexPin(pin);
+//       return index;
+//     }
+//   });
+// };
+
+// const getIndexPin = (element) => {
+//   element.addEventListener(`click`, function(){
+//     return index;
+//   });
+// }
+
+const roomssss = (roomss) => {
+  roomss.forEach(function (room) {
+    
+  });
+}
+
 
 const showCard = () => {
   const rooms = getRooms();
-  const template = getItemCard(rooms[0]);
+  console.log(getPin());
+  const template = getItemCard(rooms[4]);
   const mapFilter = document.querySelector(`.map__filters-container`);
   const mapFilterParent = mapFilter.parentNode;
   mapFilterParent.insertBefore(template, mapFilter);
+
+  closePopup();
 };
 
 const renderFeatures = (container, features) => {
@@ -281,12 +330,39 @@ const getItemCard = (room) => {
   renderFeatures(cardElement.querySelector(`.popup__features`), room.offer.features);
   renderPhotos(cardElement.querySelector(`.popup__photos`), room.offer.photos);
   // return cardElement; в следующих заданиях убрать этот комментарий
+  return cardElement;
 };
+
+const showCardPopup = () => {
+  const pins = pinContainer.querySelectorAll(`.map__pin`);
+
+  pins.forEach((pin) => {
+    if (!pin.classList.contains(`map__pin--main`)) {
+      pin.addEventListener(`click`, function () {
+        const cardPopup = document.querySelector(`.popup`);
+        if (!cardPopup) {
+          showCard();
+        }
+        // closePopup(cardPopup);
+
+      });
+    }
+  });
+
+}
+
+const closePopup = () => {
+  const cardPopup = document.querySelector(`.popup`);
+  const popupClose = cardPopup.querySelector(`.popup__close`);
+  popupClose.addEventListener(`click`, function () {
+    cardPopup.remove();
+  });
+}
+
 
 const loadAd = () => {
   pinAddress(MapState.DISABLED);
   changeDisabledItems();
-  showCard();
 };
 
 loadAd();
