@@ -299,7 +299,8 @@ const getItemCard = (room) => {
   cardElement.querySelector(`.popup__description`).textContent = room.offer.description;
   renderFeatures(cardElement.querySelector(`.popup__features`), room.offer.features);
   renderPhotos(cardElement.querySelector(`.popup__photos`), room.offer.photos);
-  // return cardElement; в следующих заданиях убрать этот комментарий
+  console.log(cardElement);
+
   return cardElement;
 };
 
@@ -318,124 +319,123 @@ const addCloseCardEvent = () => {
   });
 };
 
-const validationForm = (form) => {
-
-  // Валидация Комнат и гостей
-  const isRoomValid = (roomValue, capacityValue) => {
-    return roomCapacityValues[roomValue].includes(capacityValue);
-  };
-
-  const validateRoom = (roomElement, capacityElement) => {
-    let message = ``;
-
-    const roomValue = parseInt(roomElement.value, 10);
-    const capacityValue = parseInt(capacityElement.value, 10);
-
-    if (!isRoomValid(roomValue, capacityValue)) {
-      message = `Неверное кол-во гостей`;
-    }
-
-    roomElement.setCustomValidity(message);
-  };
-
-  const validateTitle = (element) => {
-    element.addEventListener(`invalid`, function () {
-      if (element.validity.valueMissing) {
-        element.setCustomValidity(`Обязательное поле`);
-      } else {
-        element.setCustomValidity(``);
-      }
-    });
-
-    element.addEventListener(`input`, function () {
-      const valueLength = element.value.length;
-
-      if (valueLength < FormValue.MIN_TITLE_LENGTH) {
-        element.setCustomValidity(`Ещё ${FormValue.MIN_TITLE_LENGTH - valueLength} симв.`);
-      } else if (valueLength > FormValue.MAX_TITLE_LENGTH) {
-        element.setCustomValidity(`Удалите лишние ${valueLength - FormValue.MAX_TITLE_LENGTH} симв.`);
-      } else {
-        element.setCustomValidity(``);
-      }
-    });
-  };
-
-  const validateType = (typeElement, priceElement) => {
-    let message = ``;
-
-    const priceValue = parseInt(priceElement.value, 10);
-    let dictionaryVar = typeElement.value.toUpperCase();
-
-    const isPriceValid = (typeValuePrice, price) => {
-      return price >= typeValuePrice;
-    };
-
-    if (!isPriceValid(typePriceValue[RoomType[dictionaryVar]], priceValue)) {
-      message = `Ожидалась цена выше ${typePriceValue[RoomType[dictionaryVar]]}`;
-    }
-
-    if (priceElement.value > PriceValue.MORE) {
-      message = `Максимальная цена за жилье 100000 (1 миллион)`;
-    } else if (priceElement.value < PriceValue.ZERO) {
-      message = `Ожидалась положительная цена`;
-    }
-
-    priceElement.setCustomValidity(message);
-  };
-
-  const changePlaceholder = (typeElement, priceElement) => {
-    const placeholder = typePriceValue[RoomType[typeElement.value.toUpperCase()]];
-    priceElement.placeholder = placeholder;
-  };
-
-  const syncTime = (firstTime, secondTime) => {
-    secondTime.value = firstTime.value;
-  };
-
-  const addFormValidation = () => {
-    const roomElement = fillingForm.querySelector(`#room_number`);
-    const capacityElement = fillingForm.querySelector(`#capacity`);
-    const titleElement = fillingForm.querySelector(`#title`);
-    const typeElement = fillingForm.querySelector(`#type`);
-    const priceElement = fillingForm.querySelector(`#price`);
-    const addressElement = fillingForm.querySelector(`#address`);
-    addressElement.setAttribute(`readonly`, ``);
-    const timeInElement = fillingForm.querySelector(`#timein`);
-    const timeOutElement = fillingForm.querySelector(`#timeout`);
-
-    fillingForm.addEventListener(`change`, function (e) {
-      switch (e.target.id) {
-        case roomElement.id:
-          validateRoom(roomElement, capacityElement);
-          break;
-        case titleElement.id:
-          validateTitle(titleElement);
-          break;
-        case priceElement.id:
-          validateType(typeElement, priceElement);
-          break;
-        case typeElement.id:
-          validateType(typeElement, priceElement);
-          changePlaceholder(typeElement, priceElement);
-          break;
-        case timeInElement.id:
-          syncTime(timeInElement, timeOutElement);
-          break;
-        case timeOutElement.id:
-          syncTime(timeOutElement, timeInElement);
-          break;
-      }
-    });
-  };
-
-  addFormValidation();
-  form.reportValidity();
+const isRoomValid = (roomValue, capacityValue) => {
+  return roomCapacityValues[roomValue].includes(capacityValue);
 };
+
+const validateRoom = (roomElement, capacityElement) => {
+  let message = ``;
+
+  const roomValue = parseInt(roomElement.value, 10);
+  const capacityValue = parseInt(capacityElement.value, 10);
+
+  if (!isRoomValid(roomValue, capacityValue)) {
+    message = `Неверное кол-во гостей`;
+  }
+
+  roomElement.setCustomValidity(message);
+  fillingForm.reportValidity();
+};
+
+const validateTitle = (element) => {
+  element.addEventListener(`invalid`, function () {
+    if (element.validity.valueMissing) {
+      element.setCustomValidity(`Обязательное поле`);
+    } else {
+      element.setCustomValidity(``);
+    }
+  });
+
+  element.addEventListener(`input`, function () {
+    const valueLength = element.value.length;
+
+    if (valueLength < FormValue.MIN_TITLE_LENGTH) {
+      element.setCustomValidity(`Ещё ${FormValue.MIN_TITLE_LENGTH - valueLength} симв.`);
+    } else if (valueLength > FormValue.MAX_TITLE_LENGTH) {
+      element.setCustomValidity(`Удалите лишние ${valueLength - FormValue.MAX_TITLE_LENGTH} симв.`);
+    } else {
+      element.setCustomValidity(``);
+    }
+  });
+  fillingForm.reportValidity();
+};
+
+const validateType = (typeElement, priceElement) => {
+  let message = ``;
+
+  const priceValue = parseInt(priceElement.value, 10);
+  let dictionaryVar = typeElement.value.toUpperCase();
+
+  const isPriceValid = (typeValuePrice, price) => {
+    return price >= typeValuePrice;
+  };
+
+  if (!isPriceValid(typePriceValue[RoomType[dictionaryVar]], priceValue)) {
+    message = `Ожидалась цена выше ${typePriceValue[RoomType[dictionaryVar]]}`;
+  }
+
+  if (priceElement.value > PriceValue.MORE) {
+    message = `Максимальная цена за жилье 100000 (1 миллион)`;
+  } else if (priceElement.value < PriceValue.ZERO) {
+    message = `Ожидалась положительная цена`;
+  }
+
+  priceElement.setCustomValidity(message);
+  fillingForm.reportValidity();
+};
+
+const changePlaceholder = (typeElement, priceElement) => {
+  const placeholder = typePriceValue[RoomType[typeElement.value.toUpperCase()]];
+  priceElement.placeholder = placeholder;
+};
+
+const syncTime = (firstTime, secondTime) => {
+  secondTime.value = firstTime.value;
+  fillingForm.reportValidity();
+};
+
+const addFormValidation = () => {
+  const roomElement = fillingForm.querySelector(`#room_number`);
+  const capacityElement = fillingForm.querySelector(`#capacity`);
+  const titleElement = fillingForm.querySelector(`#title`);
+  const typeElement = fillingForm.querySelector(`#type`);
+  const priceElement = fillingForm.querySelector(`#price`);
+  const addressElement = fillingForm.querySelector(`#address`);
+  addressElement.setAttribute(`readonly`, ``);
+  const timeInElement = fillingForm.querySelector(`#timein`);
+  const timeOutElement = fillingForm.querySelector(`#timeout`);
+
+  fillingForm.addEventListener(`change`, function (e) {
+    switch (e.target.id) {
+      case roomElement.id:
+        validateRoom(roomElement, capacityElement);
+        break;
+      case titleElement.id:
+        validateTitle(titleElement);
+        break;
+      case priceElement.id:
+        validateType(typeElement, priceElement);
+        break;
+      case typeElement.id:
+        validateType(typeElement, priceElement);
+        changePlaceholder(typeElement, priceElement);
+        break;
+      case timeInElement.id:
+        syncTime(timeInElement, timeOutElement);
+        break;
+      case timeOutElement.id:
+        syncTime(timeOutElement, timeInElement);
+        break;
+    }
+  });
+};
+
+addFormValidation();
 
 const loadAd = () => {
   setPinAddress(MapState.DISABLED);
   changeDisabledItems();
-  validationForm(fillingForm);
+  addFormValidation();
 };
 
 mapPinEvents();
