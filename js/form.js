@@ -31,10 +31,10 @@
   };
 
   const typePriceValue = {
-    [RoomType.FLAT]: PriceValue.ONE_THOUSAND,
-    [RoomType.BUNGALOW]: PriceValue.ZERO,
-    [RoomType.HOUSE]: PriceValue.FIVE_THOUSAND,
-    [RoomType.PALACE]: PriceValue.TEN_THOUSAND,
+    [window.card.RoomType.FLAT]: PriceValue.ONE_THOUSAND,
+    [window.card.RoomType.BUNGALOW]: PriceValue.ZERO,
+    [window.card.RoomType.HOUSE]: PriceValue.FIVE_THOUSAND,
+    [window.card.RoomType.PALACE]: PriceValue.TEN_THOUSAND,
   };
 
   const roomCapacityValues = {
@@ -48,14 +48,14 @@
     MAIN_PIN_WIDTH: 65,
     MAIN_PIN_HEIGHT: 65,
     MAIN_PIN_NEEDLE: 22
-  }
+  };
 
   const setPinAddress = (state) => {
-    const valueX = mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
-    let valueY = mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
+    const valueX = window.main.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
+    let valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
 
-    if (state === MapState.ACTIVE) {
-      valueY = mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
+    if (state === window.disabled.MapState.ACTIVE) {
+      valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
     }
 
     document.querySelector(`#address`).value = `${valueX}, ${valueY}`;
@@ -112,8 +112,8 @@
       return price >= typeValuePrice;
     };
 
-    if (!isPriceValid(typePriceValue[RoomType[dictionaryVar]], priceValue)) {
-      message = `Ожидалась цена выше ${typePriceValue[RoomType[dictionaryVar]]}`;
+    if (!isPriceValid(typePriceValue[window.card.RoomType[dictionaryVar]], priceValue)) {
+      message = `Ожидалась цена выше ${typePriceValue[window.card.RoomType[dictionaryVar]]}`;
     }
 
     if (priceElement.value > PriceValue.MORE) {
@@ -127,7 +127,7 @@
   };
 
   const changePlaceholder = (typeElement, priceElement) => {
-    const placeholder = typePriceValue[RoomType[typeElement.value.toUpperCase()]];
+    const placeholder = typePriceValue[window.card.RoomType[typeElement.value.toUpperCase()]];
     priceElement.placeholder = placeholder;
   };
 
@@ -170,6 +170,13 @@
           break;
       }
     });
+  };
+
+  window.form = {
+    setPinAddress,
+    fillingForm,
+    formFieldset,
+    addFormValidation
   };
 
 })();

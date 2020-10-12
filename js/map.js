@@ -32,7 +32,7 @@
 
   const showCard = (pin) => {
     closeCard();
-    card = getItemCard(pin);
+    card = window.card.getItemCard(pin);
     const mapFilter = document.querySelector(`.map__filters-container`);
     const mapFilterParent = mapFilter.parentNode;
     mapFilterParent.insertBefore(card, mapFilter);
@@ -52,4 +52,11 @@
       }
     });
   };
+
+  window.map = {
+    EventValue,
+    map,
+    addPinEvent
+  };
+
 })();

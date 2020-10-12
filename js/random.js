@@ -21,4 +21,11 @@
     const rand = Math.floor(Math.random() * arr.length);
     return arr[rand];
   };
+
+  window.random = {
+    getRandomInt,
+    getRandomArr,
+    getRandomElement
+  };
+
 })();

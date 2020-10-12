@@ -24,25 +24,29 @@
         },
         offer: {
           title: `Title${i}`,
-          address: `${getRandomInt(MapSize.MAP_WIDTH)}, ${getRandomInt(MapSize.MAP_HEIGHT)}`,
-          price: getRandomInt(PRICE),
-          type: ROOM_TYPE[getRandomInt(ROOM_TYPE.length)],
-          rooms: getRandomInt(NUMBER_OF_ROOMS) + 1,
-          guests: getRandomInt(NUMBER_OF_GUESTS) + 1,
-          checkin: `${getRandomElement(TIME)}`,
-          checkout: `${getRandomElement(TIME)}`,
-          features: getRandomArr(ROOM_FEATURES),
+          address: `${window.random.getRandomInt(MapSize.MAP_WIDTH)}, ${window.random.getRandomInt(MapSize.MAP_HEIGHT)}`,
+          price: window.random.getRandomInt(PRICE),
+          type: ROOM_TYPE[window.random.getRandomInt(ROOM_TYPE.length)],
+          rooms: window.random.getRandomInt(NUMBER_OF_ROOMS) + 1,
+          guests: window.random.getRandomInt(NUMBER_OF_GUESTS) + 1,
+          checkin: `${window.random.getRandomElement(TIME)}`,
+          checkout: `${window.random.getRandomElement(TIME)}`,
+          features: window.random.getRandomArr(ROOM_FEATURES),
           description: `description${i}`,
-          photos: getRandomArr(ROOM_PHOTOS)
+          photos: window.random.getRandomArr(ROOM_PHOTOS)
         },
         location: {
-          x: getRandomInt(map.offsetWidth - PinSize.PIN_WIDTH),
-          y: 130 + getRandomInt(500)
+          x: window.random.getRandomInt(window.map.map.offsetWidth - window.card.PinSize.PIN_WIDTH),
+          y: 130 + window.random.getRandomInt(500)
         }
       };
       rooms.push(room);
     }
     return rooms;
+  };
+
+  window.data = {
+    getRooms
   };
 
 })();

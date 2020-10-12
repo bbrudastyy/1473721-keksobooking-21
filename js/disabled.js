@@ -18,36 +18,38 @@
   const changeDisabledItems = () => {
     changeDisabled(filters);
     changeDisabled([filterFeatures]);
-    changeDisabled(formFieldset);
+    changeDisabled(window.form.formFieldset);
   };
 
   const activationMap = () => {
-    map.classList.remove(`map--faded`);
-    fillingForm.classList.remove(`ad-form--disabled`);
+    window.map.map.classList.remove(`map--faded`);
+    window.form.fillingForm.classList.remove(`ad-form--disabled`);
     changeDisabledItems();
-    setPinAddress(MapState.ACTIVE);
+    window.form.setPinAddress(MapState.ACTIVE);
   };
 
   const mapPinEvents = () => {
-    mapPinMain.addEventListener(`mousedown`, function (e) {
-      if (e.which === EventValue.MOUSE_LEFT) {
+    window.main.mapPinMain.addEventListener(`mousedown`, function (e) {
+      if (e.which === window.map.EventValue.MOUSE_LEFT) {
         activationMap();
-        showPins();
-        console.log('Работает');
+        window.pin.showPins();
       }
     });
 
     window.main.mapPinMain.addEventListener(`keydown`, function (e) {
-      if (e.key === EventValue.KEY_ENTER) {
+      if (e.key === window.map.EventValue.KEY_ENTER) {
         activationMap();
-        showPins();
+        window.pin.showPins();
       }
     });
   };
 
   window.disabled = {
-    mapPinEvents: mapPinEvents
+    mapPinEvents,
+    MapState,
+    changeDisabledItems
   };
+
 
 })();
 

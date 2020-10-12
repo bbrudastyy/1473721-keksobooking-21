@@ -31,7 +31,7 @@
       const room = rooms[i];
       const pinElement = pinTemplate.cloneNode(true);
 
-      addPinEvent(room, pinElement);
+      window.map.addPinEvent(room, pinElement);
 
       pinElement.setAttribute(`style`, `left: ${room.location.x - PinSize.PIN_WIDTH / 2}px; top: ${room.location.y - PinSize.PIN_HEIGHT}px`);
       pinElement.querySelector(`img`).src = room.author.avatar;
@@ -88,6 +88,13 @@
     renderPhotos(cardElement.querySelector(`.popup__photos`), room.offer.photos);
 
     return cardElement;
+  };
+
+  window.card = {
+    RoomType,
+    getTemplate,
+    getItemCard,
+    PinSize
   };
 
 })();
