@@ -10,7 +10,8 @@
     }
   };
   window.pin = {
-    showPins
+    showPins,
+    pinContainer
   };
 
 })();

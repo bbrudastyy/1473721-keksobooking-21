@@ -50,12 +50,15 @@
     MAIN_PIN_NEEDLE: 22
   };
 
-  const setPinAddress = (state) => {
-    const valueX = window.main.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
+  const setPinAddress = (state, x, y) => {
+    let valueX = window.main.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
     let valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
 
     if (state === window.disabled.MapState.ACTIVE) {
       valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
+    } else if (state === window.disabled.MapState.MOVE_PIN) {
+      valueX = x + MainPinSize.MAIN_PIN_WIDTH / 2;
+      valueY = y + window.form.MainPinSize.MAIN_PIN_HEIGHT + window.form.MainPinSize.MAIN_PIN_NEEDLE;
     }
 
     document.querySelector(`#address`).value = `${valueX}, ${valueY}`;
@@ -176,7 +179,8 @@
     setPinAddress,
     fillingForm,
     formFieldset,
-    addFormValidation
+    addFormValidation,
+    MainPinSize
   };
 
 })();

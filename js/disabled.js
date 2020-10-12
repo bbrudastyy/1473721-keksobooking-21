@@ -6,7 +6,8 @@
 
   const MapState = {
     ACTIVE: `active`,
-    DISABLED: `disabled`
+    DISABLED: `disabled`,
+    MOVE_PIN: `move`
   };
 
   const changeDisabled = (elements) => {
