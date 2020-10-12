@@ -54,7 +54,7 @@
   };
 
   window.map = {
-    EventValue,
+    eventValue: EventValue,
     map,
     addPinEvent
   };

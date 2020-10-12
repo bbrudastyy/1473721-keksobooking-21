@@ -31,14 +31,14 @@
 
   const mapPinEvents = () => {
     window.main.mapPinMain.addEventListener(`mousedown`, function (e) {
-      if (e.which === window.map.EventValue.MOUSE_LEFT) {
+      if (e.which === window.map.eventValue.MOUSE_LEFT) {
         activationMap();
         window.pin.showPins();
       }
     });
 
     window.main.mapPinMain.addEventListener(`keydown`, function (e) {
-      if (e.key === window.map.EventValue.KEY_ENTER) {
+      if (e.key === window.map.eventValue.KEY_ENTER) {
         activationMap();
         window.pin.showPins();
       }
@@ -47,7 +47,7 @@
 
   window.disabled = {
     mapPinEvents,
-    MapState,
+    mapState: MapState,
     changeDisabledItems
   };
 

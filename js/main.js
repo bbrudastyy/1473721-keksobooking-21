@@ -11,7 +11,7 @@
 
 
   const loadAd = () => {
-    window.form.setPinAddress(window.disabled.MapState.DISABLED);
+    window.form.setPinAddress(window.disabled.mapState.DISABLED);
     window.disabled.changeDisabledItems();
     window.form.addFormValidation();
   };

@@ -38,7 +38,7 @@
         window.main.mapPinMain.style.left = `${valueY}px`;
       }
 
-      window.form.setPinAddress(window.disabled.MapState.MOVE_PIN, valueY, valueX);
+      window.form.setPinAddress(window.disabled.mapState.MOVE_PIN, valueY, valueX);
       const valueXForm = valueX + window.form.MainPinSize.MAIN_PIN_WIDTH / 2;
       const valueYForm = valueY + window.form.MainPinSize.MAIN_PIN_HEIGHT + window.form.MainPinSize.MAIN_PIN_NEEDLE;
       document.querySelector(`#address`).value = `${valueYForm}, ${valueXForm}`;

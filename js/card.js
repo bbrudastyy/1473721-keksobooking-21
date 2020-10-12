@@ -91,10 +91,10 @@
   };
 
   window.card = {
-    RoomType,
+    roomType: RoomType,
     getTemplate,
     getItemCard,
-    PinSize
+    pinSize: PinSize
   };
 
 })();

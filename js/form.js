@@ -31,10 +31,10 @@
   };
 
   const typePriceValue = {
-    [window.card.RoomType.FLAT]: PriceValue.ONE_THOUSAND,
-    [window.card.RoomType.BUNGALOW]: PriceValue.ZERO,
-    [window.card.RoomType.HOUSE]: PriceValue.FIVE_THOUSAND,
-    [window.card.RoomType.PALACE]: PriceValue.TEN_THOUSAND,
+    [window.card.roomType.FLAT]: PriceValue.ONE_THOUSAND,
+    [window.card.roomType.BUNGALOW]: PriceValue.ZERO,
+    [window.card.roomType.HOUSE]: PriceValue.FIVE_THOUSAND,
+    [window.card.roomType.PALACE]: PriceValue.TEN_THOUSAND,
   };
 
   const roomCapacityValues = {
@@ -54,9 +54,9 @@
     let valueX = window.main.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
     let valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
 
-    if (state === window.disabled.MapState.ACTIVE) {
+    if (state === window.disabled.mapState.ACTIVE) {
       valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
-    } else if (state === window.disabled.MapState.MOVE_PIN) {
+    } else if (state === window.disabled.mapState.MOVE_PIN) {
       valueX = x + MainPinSize.MAIN_PIN_WIDTH / 2;
       valueY = y + window.form.MainPinSize.MAIN_PIN_HEIGHT + window.form.MainPinSize.MAIN_PIN_NEEDLE;
     }
@@ -115,8 +115,8 @@
       return price >= typeValuePrice;
     };
 
-    if (!isPriceValid(typePriceValue[window.card.RoomType[dictionaryVar]], priceValue)) {
-      message = `Ожидалась цена выше ${typePriceValue[window.card.RoomType[dictionaryVar]]}`;
+    if (!isPriceValid(typePriceValue[window.card.roomType[dictionaryVar]], priceValue)) {
+      message = `Ожидалась цена выше ${typePriceValue[window.card.roomType[dictionaryVar]]}`;
     }
 
     if (priceElement.value > PriceValue.MORE) {
@@ -130,7 +130,7 @@
   };
 
   const changePlaceholder = (typeElement, priceElement) => {
-    const placeholder = typePriceValue[window.card.RoomType[typeElement.value.toUpperCase()]];
+    const placeholder = typePriceValue[window.card.roomType[typeElement.value.toUpperCase()]];
     priceElement.placeholder = placeholder;
   };
 

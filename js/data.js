@@ -36,7 +36,7 @@
           photos: window.random.getRandomArr(ROOM_PHOTOS)
         },
         location: {
-          x: window.random.getRandomInt(window.map.map.offsetWidth - window.card.PinSize.PIN_WIDTH),
+          x: window.random.getRandomInt(window.map.map.offsetWidth - window.card.pinSize.PIN_WIDTH),
           y: 130 + window.random.getRandomInt(500)
         }
       };
