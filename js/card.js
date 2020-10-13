@@ -24,6 +24,56 @@
     PIN_HEIGHT: 40
   };
 
+  const EventValue = {
+    MOUSE_LEFT: 1,
+    KEY_ENTER: `Enter`,
+    KEY_ESCAPE: `Escape`,
+    KEY_ESCAPE_ABBREVIATED: `Esc`
+  };
+
+  let card = null;
+
+  const addPinEvent = (room, pinElement) => {
+    pinElement.addEventListener(`click`, function (evt) {
+
+      if (evt.target.classList.contains(`map__pin--main`)) {
+        return;
+      }
+
+      window.card.showCard(room);
+    });
+  };
+
+  const addCloseCardEvent = () => {
+    const popupClose = card.querySelector(`.popup__close`);
+    popupClose.addEventListener(`click`, function () {
+      window.card.closeCard();
+    });
+
+    document.addEventListener(`keydown`, function (e) {
+      if (e.key === EventValue.KEY_ESCAPE || e.key === EventValue.KEY_ESCAPE_ABBREVIATED) {
+        e.preventDefault();
+        closeCard();
+      }
+    });
+  };
+
+  const closeCard = () => {
+    if (card !== null) {
+      card.remove();
+      card = null;
+    }
+  };
+
+  const showCard = (pin) => {
+    closeCard();
+    card = getItemCard(pin);
+    const mapFilter = document.querySelector(`.map__filters-container`);
+    const mapFilterParent = mapFilter.parentNode;
+    mapFilterParent.insertBefore(card, mapFilter);
+    addCloseCardEvent();
+  };
+
   const getTemplate = (rooms) => {
     const fragment = document.createDocumentFragment();
 
@@ -31,7 +81,7 @@
       const room = rooms[i];
       const pinElement = pinTemplate.cloneNode(true);
 
-      window.map.addPinEvent(room, pinElement);
+      addPinEvent(room, pinElement);
 
       pinElement.setAttribute(`style`, `left: ${room.location.x - PinSize.PIN_WIDTH / 2}px; top: ${room.location.y - PinSize.PIN_HEIGHT}px`);
       pinElement.querySelector(`img`).src = room.author.avatar;
@@ -94,7 +144,11 @@
     roomType: RoomType,
     getTemplate,
     getItemCard,
-    pinSize: PinSize
+    pinSize: PinSize,
+    showCard,
+    card,
+    closeCard,
+    eventValue: EventValue
   };
 
 })();

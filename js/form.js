@@ -51,14 +51,15 @@
   };
 
   const setPinAddress = (state, x, y) => {
-    let valueX = window.main.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
-    let valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
+    let valueX = window.map.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
+    let valueY = window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
 
-    if (state === window.disabled.mapState.ACTIVE) {
-      valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
-    } else if (state === window.disabled.mapState.MOVE_PIN) {
+    if (state === window.map.mapState.ACTIVE) {
+      valueY = window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
+    } else if (state === window.map.mapState.MOVE_PIN) {
       valueX = x + MainPinSize.MAIN_PIN_WIDTH / 2;
-      valueY = y + window.form.MainPinSize.MAIN_PIN_HEIGHT + window.form.MainPinSize.MAIN_PIN_NEEDLE;
+      // valueY = y + window.form.MainPinSize.MAIN_PIN_NEEDLE - MainPinSize.MAIN_PIN_HEIGHT / 2;
+      valueY = y;
     }
 
     document.querySelector(`#address`).value = `${valueX}, ${valueY}`;

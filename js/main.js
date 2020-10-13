@@ -2,23 +2,15 @@
 
 (function () {
 
-
-  const mapPinMain = document.querySelector(`.map__pin--main`);
-
-  window.main = {
-    mapPinMain
-  };
-
-
   const loadAd = () => {
-    window.form.setPinAddress(window.disabled.mapState.DISABLED);
-    window.disabled.changeDisabledItems();
+    window.form.setPinAddress(window.map.mapState.DISABLED);
+    window.map.changeDisabledItems();
     window.form.addFormValidation();
   };
 
-  window.disabled.mapPinEvents();
+  window.map.mapPinEvents();
+  window.moving.movingPin();
 
   loadAd();
-
 
 })();
