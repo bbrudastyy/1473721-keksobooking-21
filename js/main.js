@@ -3,7 +3,7 @@
 (function () {
 
   const loadAd = () => {
-    window.form.setPinAddress(window.map.mapState.DISABLED);
+    window.form.setPinAddress(0, 0);
     window.map.changeDisabledItems();
     window.form.addFormValidation();
   };

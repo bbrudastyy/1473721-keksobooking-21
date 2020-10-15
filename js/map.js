@@ -7,15 +7,9 @@
   const filters = document.querySelectorAll(`.map__filter`);
   const filterFeatures = document.querySelector(`.map__features`);
 
-  const MapState = {
-    ACTIVE: `active`,
-    DISABLED: `disabled`,
-    MOVE_PIN: `move`
-  };
-
   const changeDisabled = (elements) => {
     elements.forEach((filter) => {
-      filter.removeAttribute(`disabled`);
+      filter.toggleAttribute(`disabled`);
     });
   };
 
@@ -29,7 +23,6 @@
     window.map.map.classList.remove(`map--faded`);
     window.form.fillingForm.classList.remove(`ad-form--disabled`);
     changeDisabledItems();
-    window.form.setPinAddress(MapState.ACTIVE);
   };
 
   const mapPinEvents = () => {
@@ -52,7 +45,6 @@
     map,
     mapPinMain,
     mapPinEvents,
-    mapState: MapState,
     changeDisabledItems,
   };
 

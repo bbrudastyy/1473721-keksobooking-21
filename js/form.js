@@ -50,16 +50,19 @@
     MAIN_PIN_NEEDLE: 22
   };
 
-  const setPinAddress = (state, x, y) => {
-    let valueX = window.map.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
-    let valueY = window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
+  const setPinAddress = (x, y) => {
+    let valueX;
+    let valueY;
 
-    if (state === window.map.mapState.ACTIVE) {
-      valueY = window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
-    } else if (state === window.map.mapState.MOVE_PIN) {
-      valueX = x + MainPinSize.MAIN_PIN_WIDTH / 2;
-      // valueY = y + window.form.MainPinSize.MAIN_PIN_NEEDLE - MainPinSize.MAIN_PIN_HEIGHT / 2;
-      valueY = y;
+    if (x === 0 && y === 0) {
+      valueX = x + window.map.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
+      valueY = y + window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
+    } else {
+      valueX = x + Math.floor(MainPinSize.MAIN_PIN_WIDTH / 2);
+      if (x >= 1133) {
+        valueX = x + Math.round(MainPinSize.MAIN_PIN_WIDTH / 2);
+      }
+      valueY = y + MainPinSize.MAIN_PIN_NEEDLE + MainPinSize.MAIN_PIN_HEIGHT;
     }
 
     document.querySelector(`#address`).value = `${valueX}, ${valueY}`;
@@ -150,14 +153,13 @@
     addressElement.setAttribute(`readonly`, ``);
     const timeInElement = fillingForm.querySelector(`#timein`);
     const timeOutElement = fillingForm.querySelector(`#timeout`);
+    validateTitle(titleElement);
+    changePlaceholder(typeElement, priceElement);
 
     fillingForm.addEventListener(`change`, function (e) {
       switch (e.target.id) {
         case roomElement.id:
           validateRoom(roomElement, capacityElement);
-          break;
-        case titleElement.id:
-          validateTitle(titleElement);
           break;
         case priceElement.id:
           validateType(typeElement, priceElement);
