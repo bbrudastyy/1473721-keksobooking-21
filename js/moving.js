@@ -3,8 +3,8 @@
 (function () {
 
   const restrictionCoords = {
-    MIN_CORD_X: 130,
-    MAX_CORD_X: 630,
+    MIN_CORD_X: 43,
+    MAX_CORD_X: 543,
     MIN_CORD_Y: window.pin.pinContainer.offsetLeft,
     MAX_CORD_Y: window.pin.pinContainer.offsetWidth - window.map.mapPinMain.offsetWidth
   };
@@ -35,16 +35,11 @@
         let valueX = window.map.mapPinMain.offsetTop - shift.y;
         let valueY = window.map.mapPinMain.offsetLeft - shift.x;
 
-        if (valueX > restrictionCoords.MIN_CORD_X && valueX < restrictionCoords.MAX_CORD_X && valueY > restrictionCoords.MIN_CORD_Y - window.form.MainPinSize.MAIN_PIN_WIDTH / 2 && valueY < restrictionCoords.MAX_CORD_Y + window.form.MainPinSize.MAIN_PIN_WIDTH / 2) {
+        if (valueX >= restrictionCoords.MIN_CORD_X && valueX <= restrictionCoords.MAX_CORD_X && valueY > restrictionCoords.MIN_CORD_Y - window.form.MainPinSize.MAIN_PIN_WIDTH / 2 && valueY <= restrictionCoords.MAX_CORD_Y + window.form.MainPinSize.MAIN_PIN_WIDTH / 2) {
           window.map.mapPinMain.style.top = `${valueX}px`;
           window.map.mapPinMain.style.left = `${valueY}px`;
-
+          window.form.setPinAddress(valueY, valueX);
         }
-
-        window.form.setPinAddress(window.map.mapState.MOVE_PIN, valueY, valueX);
-        // const valueXForm = valueX + window.form.MainPinSize.MAIN_PIN_WIDTH / 2;
-        // const valueYForm = valueY + window.form.MainPinSize.MAIN_PIN_HEIGHT + window.form.MainPinSize.MAIN_PIN_NEEDLE;
-        // document.querySelector(`#address`).value = `${valueYForm}, ${valueXForm}`;
 
       };
 
@@ -58,10 +53,10 @@
       document.addEventListener(`mousemove`, onMouseMove);
       document.addEventListener(`mouseup`, onMouseUp);
     });
-  }
+  };
 
   window.moving = {
     movingPin
-  }
+  };
 
 })();

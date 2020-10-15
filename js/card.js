@@ -74,10 +74,20 @@
     addCloseCardEvent();
   };
 
+  const getRoomsLength = (roomsContainer) => {
+    let length;
+    if (roomsContainer.length >= 8) {
+      length = 8;
+    } else {
+      length = roomsContainer.length;
+    }
+    return length;
+  };
+
   const getTemplate = (rooms) => {
     const fragment = document.createDocumentFragment();
 
-    for (let i = 0; i < rooms.length; i++) {
+    for (let i = 0; i < getRoomsLength(rooms); i++) {
       const room = rooms[i];
       const pinElement = pinTemplate.cloneNode(true);
 

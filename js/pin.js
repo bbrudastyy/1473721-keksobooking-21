@@ -4,9 +4,17 @@
 
   const showPins = () => {
     if (document.querySelectorAll(`.map__pin`).length === 1) {
-      const rooms = window.data.getRooms();
-      const template = window.card.getTemplate(rooms);
-      pinContainer.appendChild(template);
+      const onError = (message) => {
+        throw Error(message);
+      };
+
+      const onSuccess = (data) => {
+        const rooms = data;
+        const template = window.card.getTemplate(rooms);
+        pinContainer.appendChild(template);
+      };
+
+      window.load(onSuccess, onError);
     }
   };
   window.pin = {
