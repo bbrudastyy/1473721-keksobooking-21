@@ -31,10 +31,10 @@
   };
 
   const typePriceValue = {
-    [window.card.RoomType.FLAT]: PriceValue.ONE_THOUSAND,
-    [window.card.RoomType.BUNGALOW]: PriceValue.ZERO,
-    [window.card.RoomType.HOUSE]: PriceValue.FIVE_THOUSAND,
-    [window.card.RoomType.PALACE]: PriceValue.TEN_THOUSAND,
+    [window.card.roomType.FLAT]: PriceValue.ONE_THOUSAND,
+    [window.card.roomType.BUNGALOW]: PriceValue.ZERO,
+    [window.card.roomType.HOUSE]: PriceValue.FIVE_THOUSAND,
+    [window.card.roomType.PALACE]: PriceValue.TEN_THOUSAND,
   };
 
   const roomCapacityValues = {
@@ -50,12 +50,16 @@
     MAIN_PIN_NEEDLE: 22
   };
 
-  const setPinAddress = (state) => {
-    const valueX = window.main.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
-    let valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
+  const setPinAddress = (state, x, y) => {
+    let valueX = window.map.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
+    let valueY = window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
 
-    if (state === window.disabled.MapState.ACTIVE) {
-      valueY = window.main.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
+    if (state === window.map.mapState.ACTIVE) {
+      valueY = window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE;
+    } else if (state === window.map.mapState.MOVE_PIN) {
+      valueX = x + MainPinSize.MAIN_PIN_WIDTH / 2;
+      // valueY = y + window.form.MainPinSize.MAIN_PIN_NEEDLE - MainPinSize.MAIN_PIN_HEIGHT / 2;
+      valueY = y;
     }
 
     document.querySelector(`#address`).value = `${valueX}, ${valueY}`;
@@ -112,8 +116,8 @@
       return price >= typeValuePrice;
     };
 
-    if (!isPriceValid(typePriceValue[window.card.RoomType[dictionaryVar]], priceValue)) {
-      message = `Ожидалась цена выше ${typePriceValue[window.card.RoomType[dictionaryVar]]}`;
+    if (!isPriceValid(typePriceValue[window.card.roomType[dictionaryVar]], priceValue)) {
+      message = `Ожидалась цена выше ${typePriceValue[window.card.roomType[dictionaryVar]]}`;
     }
 
     if (priceElement.value > PriceValue.MORE) {
@@ -127,7 +131,7 @@
   };
 
   const changePlaceholder = (typeElement, priceElement) => {
-    const placeholder = typePriceValue[window.card.RoomType[typeElement.value.toUpperCase()]];
+    const placeholder = typePriceValue[window.card.roomType[typeElement.value.toUpperCase()]];
     priceElement.placeholder = placeholder;
   };
 
@@ -176,7 +180,8 @@
     setPinAddress,
     fillingForm,
     formFieldset,
-    addFormValidation
+    addFormValidation,
+    MainPinSize
   };
 
 })();

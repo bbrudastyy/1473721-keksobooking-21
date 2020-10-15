@@ -2,61 +2,58 @@
 
 (function () {
   const map = document.querySelector(`.map`);
+  const mapPinMain = document.querySelector(`.map__pin--main`);
 
-  const EventValue = {
-    MOUSE_LEFT: 1,
-    KEY_ENTER: `Enter`,
-    KEY_ESCAPE: `Escape`,
-    KEY_ESCAPE_ABBREVIATED: `Esc`
+  const filters = document.querySelectorAll(`.map__filter`);
+  const filterFeatures = document.querySelector(`.map__features`);
+
+  const MapState = {
+    ACTIVE: `active`,
+    DISABLED: `disabled`,
+    MOVE_PIN: `move`
   };
 
-  let card = null;
+  const changeDisabled = (elements) => {
+    elements.forEach((filter) => {
+      filter.removeAttribute(`disabled`);
+    });
+  };
 
-  const addPinEvent = (room, pinElement) => {
-    pinElement.addEventListener(`click`, function (evt) {
+  const changeDisabledItems = () => {
+    changeDisabled(filters);
+    changeDisabled([filterFeatures]);
+    changeDisabled(window.form.formFieldset);
+  };
 
-      if (evt.target.classList.contains(`map__pin--main`)) {
-        return;
+  const activationMap = () => {
+    window.map.map.classList.remove(`map--faded`);
+    window.form.fillingForm.classList.remove(`ad-form--disabled`);
+    changeDisabledItems();
+    window.form.setPinAddress(MapState.ACTIVE);
+  };
+
+  const mapPinEvents = () => {
+    window.map.mapPinMain.addEventListener(`mousedown`, function (e) {
+      if (e.which === window.card.eventValue.MOUSE_LEFT) {
+        activationMap();
+        window.pin.showPins();
       }
-
-      showCard(room);
-    });
-  };
-
-  const closeCard = () => {
-    if (card !== null) {
-      card.remove();
-      card = null;
-    }
-  };
-
-  const showCard = (pin) => {
-    closeCard();
-    card = window.card.getItemCard(pin);
-    const mapFilter = document.querySelector(`.map__filters-container`);
-    const mapFilterParent = mapFilter.parentNode;
-    mapFilterParent.insertBefore(card, mapFilter);
-    addCloseCardEvent();
-  };
-
-  const addCloseCardEvent = () => {
-    const popupClose = card.querySelector(`.popup__close`);
-    popupClose.addEventListener(`click`, function () {
-      closeCard();
     });
 
-    document.addEventListener(`keydown`, function (e) {
-      if (e.key === EventValue.KEY_ESCAPE || e.key === EventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
-        closeCard();
+    window.map.mapPinMain.addEventListener(`keydown`, function (e) {
+      if (e.key === window.card.eventValue.KEY_ENTER) {
+        activationMap();
+        window.pin.showPins();
       }
     });
   };
 
   window.map = {
-    EventValue,
     map,
-    addPinEvent
+    mapPinMain,
+    mapPinEvents,
+    mapState: MapState,
+    changeDisabledItems,
   };
 
 })();
