@@ -13,7 +13,7 @@
     NOT_FOUND: 404
   };
 
-  window.load = function (onSuccess, onError) {
+  window.load = (onSuccess, onError)  => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = `json`;
 
@@ -46,6 +46,7 @@
     xhr.addEventListener(`error`, function () {
       onError(`Произошла ошибка соединения`);
     });
+    
     xhr.addEventListener(`timeout`, function () {
       onError(`Запрос не успел выполниться за ${xhr.timeout}мс`);
     });

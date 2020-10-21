@@ -2,6 +2,11 @@
 (function () {
   const fillingForm = document.querySelector(`.ad-form`);
   const formFieldset = fillingForm.querySelectorAll(`fieldset`);
+  const formReset = fillingForm.querySelector(`.ad-form__reset`);
+  const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
+  const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
+  const errorButton = document.querySelector(`.error__button`);
+  const main = document.querySelector(`main`);
 
   const FormValue = {
     MIN_TITLE_LENGTH: 30,
@@ -44,28 +49,14 @@
     [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
   };
 
-  const MainPinSize = {
-    MAIN_PIN_WIDTH: 65,
-    MAIN_PIN_HEIGHT: 65,
-    MAIN_PIN_NEEDLE: 22
-  };
+  const InputType = {
+    TEXT: `input[type=text]`,
+    NUMBER: `input[type=number]`,
+    TEXTAREA: `textarea`
+  }
 
-  const setPinAddress = (x, y) => {
-    let valueX;
-    let valueY;
-
-    if (x === 0 && y === 0) {
-      valueX = x + window.map.mapPinMain.offsetLeft + MainPinSize.MAIN_PIN_WIDTH / 2;
-      valueY = y + window.map.mapPinMain.offsetTop + MainPinSize.MAIN_PIN_HEIGHT / 2;
-    } else {
-      valueX = x + Math.floor(MainPinSize.MAIN_PIN_WIDTH / 2);
-      if (x >= 1133) {
-        valueX = x + Math.round(MainPinSize.MAIN_PIN_WIDTH / 2);
-      }
-      valueY = y + MainPinSize.MAIN_PIN_NEEDLE + MainPinSize.MAIN_PIN_HEIGHT;
-    }
-
-    document.querySelector(`#address`).value = `${valueX}, ${valueY}`;
+  const setAddress = (valueX, valueY) => {
+    document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
   };
 
   const isRoomValid = (roomValue, capacityValue) => {
@@ -143,6 +134,12 @@
     fillingForm.reportValidity();
   };
 
+  const changeDisabled = (elements) => {
+    elements.forEach((filter) => {
+      window.map.getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``)
+    });
+  };
+
   const addFormValidation = () => {
     const roomElement = fillingForm.querySelector(`#room_number`);
     const capacityElement = fillingForm.querySelector(`#capacity`);
@@ -178,12 +175,73 @@
     });
   };
 
+  const showMessage = (message) => {
+    main.appendChild(message);
+  }
+
+  document.addEventListener(`keydown`, function (e) {
+    if (formMessageOk) {
+      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
+        e.preventDefault();
+        main.removeChild(formMessageOk);
+      }
+    }
+  });
+
+  document.addEventListener(`keydown`, function (e) {
+    if (formMessageError) {
+      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
+        e.preventDefault();
+        main.removeChild(formMessageError);
+      }
+    }
+  });
+
+  if (errorButton) {
+    errorButton.addEventListener(`click`, function (e) {
+      e.preventDefault();
+      console.log(formMessageError);
+      fillingForm.removeChild(formMessageError);
+    });
+  }
+
+  // document.addEventListener(`click`, function (e) {
+  //   if (formMessageError) {
+  //     e.preventDefault();
+  //     main.removeChild(formMessageError);
+  //   }
+  // });
+
+  const onError = () => {
+    showMessage(formMessageError);
+  }
+
+  const onSuccess = () => {
+    window.pin.close();
+    showMessage(formMessageOk);
+    window.map.deactivate();
+    fillingForm.reset();
+    window.moving.setDefaultAddress();
+  }
+
+  fillingForm.addEventListener(`submit`, function (e) {
+    window.upload(new FormData(fillingForm), function () {
+      onSuccess();
+    }, onError());
+    e.preventDefault();
+  });
+
+  formReset.addEventListener(`click`, function () {
+    fillingForm.reset();
+    window.moving.setDefaultAddress();
+  });
+
   window.form = {
-    setPinAddress,
+    setAddress,
     fillingForm,
     formFieldset,
     addFormValidation,
-    MainPinSize
+    changeDisabled
   };
 
 })();
