@@ -108,6 +108,7 @@
   window.card = {
     roomType: RoomType,
     show,
+    close,
     card,
     eventValue: EventValue
   };

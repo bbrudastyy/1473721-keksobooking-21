@@ -2,7 +2,6 @@
 
 (function () {
   const map = document.querySelector(`.map`);
-  const mapPinMain = document.querySelector(`.map__pin--main`);
 
   const filters = document.querySelectorAll(`.map__filter`);
   const filterFeatures = document.querySelector(`.map__features`);
@@ -11,11 +10,16 @@
 
   const getIsMapActive = () => {
     return isMapActive;
-  }
+  };
 
   const changeDisabled = (elements) => {
     elements.forEach((filter) => {
-      getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``)
+      if (getIsMapActive()) {
+        filter.removeAttribute(`disabled`);
+      } else {
+        filter.setAttribute(`disabled`, ``);
+      }
+      // getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``);
     });
   };
 
@@ -33,9 +37,13 @@
   };
 
   const activate = () => {
+    if (isMapActive) {
+      return;
+    }
+
     isMapActive = true;
     activateMap();
-    window.pin.show();
+    window.filter.loadData();
   };
 
   const deactivateMap = () => {
@@ -46,31 +54,19 @@
   };
 
   const deactivate = () => {
+    if (!isMapActive) {
+      return;
+    }
+
     isMapActive = false;
     deactivateMap();
   };
 
-
-  const mapPinEvents = () => {
-    mapPinMain.addEventListener(`mousedown`, function (e) {
-      if (e.which === window.card.eventValue.MOUSE_LEFT) {
-        activate();
-      }
-    });
-
-    mapPinMain.addEventListener(`keydown`, function (e) {
-      if (e.key === window.card.eventValue.KEY_ENTER) {
-        activate();
-      }
-    });
-  };
-
   window.map = {
     map,
-    mapPinMain,
-    mapPinEvents,
     changeDisabledItems,
     getIsMapActive,
+    activate,
     deactivate
   };
 

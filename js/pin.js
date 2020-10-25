@@ -1,10 +1,16 @@
 "use strict";
+
 (function () {
+
+
+  let pins = [];
 
   const PinSize = {
     PIN_WIDTH: 40,
     PIN_HEIGHT: 40
   };
+
+  const MAX_ROOMS_LENGTH = 5;
 
   const pinContainer = document.querySelector(`.map__pins`);
   const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
@@ -31,9 +37,11 @@
   const getPins = (rooms) => {
     const fragment = document.createDocumentFragment();
 
-    for (let i = 0; i < rooms.length; i++) {
+    for (let i = 0; i < MAX_ROOMS_LENGTH; i++) {
       const room = rooms[i];
       const pinElement = getPin(room);
+
+      pins.push(pinElement);
 
       addPinEvent(room, pinElement);
 
@@ -42,33 +50,22 @@
     return fragment;
   };
 
-  const show = () => {
-    if (document.querySelectorAll(`.map__pin`).length === 1) {
-      const onError = (message) => {
-        throw Error(message);
-      };
-
-      const onSuccess = (data) => {
-        pinContainer.appendChild(getPins(data));
-      };
-
-      window.load(onSuccess, onError);
-    }
+  const show = (data) => {
+    pinContainer.appendChild(getPins(data));
   };
 
-  const close = () => {
-    const pins = document.querySelectorAll(`.map__pin`);
-    const main = document.querySelector(`.map__pin--main`);
-    pins.forEach((pin) => {
-      pinContainer.removeChild(pin);
+  const clear = () => {
+    pins.forEach(function (pin) {
+      pin.remove();
     });
-    pinContainer.appendChild(main);
+
+    pins = [];
   };
 
 
   window.pin = {
     show,
-    close,
+    clear,
     pinContainer
   };
 

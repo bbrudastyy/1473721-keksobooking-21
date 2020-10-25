@@ -5,7 +5,7 @@
   const formReset = fillingForm.querySelector(`.ad-form__reset`);
   const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
   const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
-  const errorButton = document.querySelector(`.error__button`);
+
   const main = document.querySelector(`main`);
 
   const FormValue = {
@@ -48,12 +48,6 @@
     [RoomValue.THREE]: [CapacityValue.ONE, CapacityValue.TWO, CapacityValue.THREE],
     [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
   };
-
-  const InputType = {
-    TEXT: `input[type=text]`,
-    NUMBER: `input[type=number]`,
-    TEXTAREA: `textarea`
-  }
 
   const setAddress = (valueX, valueY) => {
     document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
@@ -136,7 +130,12 @@
 
   const changeDisabled = (elements) => {
     elements.forEach((filter) => {
-      window.map.getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``)
+      if (window.map.getIsMapActive()) {
+        filter.removeAttribute(`disabled`);
+      } else {
+        filter.setAttribute(`disabled`, ``);
+      }
+      // window.map.getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``);
     });
   };
 
@@ -152,6 +151,7 @@
     const timeOutElement = fillingForm.querySelector(`#timeout`);
     validateTitle(titleElement);
     changePlaceholder(typeElement, priceElement);
+    validateRoom(roomElement, capacityElement);
 
     fillingForm.addEventListener(`change`, function (e) {
       switch (e.target.id) {
@@ -177,63 +177,65 @@
 
   const showMessage = (message) => {
     main.appendChild(message);
-  }
+  };
 
-  document.addEventListener(`keydown`, function (e) {
-    if (formMessageOk) {
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
-        main.removeChild(formMessageOk);
+  const removePopupOk = () => {
+    document.addEventListener(`keydown`, function (e) {
+      if (formMessageOk) {
+        if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
+          e.preventDefault();
+          main.removeChild(formMessageOk);
+        }
       }
-    }
-  });
-
-  document.addEventListener(`keydown`, function (e) {
-    if (formMessageError) {
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
-        main.removeChild(formMessageError);
-      }
-    }
-  });
-
-  if (errorButton) {
-    errorButton.addEventListener(`click`, function (e) {
-      e.preventDefault();
-      console.log(formMessageError);
-      fillingForm.removeChild(formMessageError);
     });
-  }
+  };
 
-  // document.addEventListener(`click`, function (e) {
-  //   if (formMessageError) {
-  //     e.preventDefault();
-  //     main.removeChild(formMessageError);
-  //   }
-  // });
+  const removePopupError = () => {
+    const errorButton = document.querySelector(`.error__button`);
+    if (formMessageError) {
+      const remove = (e) => {
+        e.preventDefault();
+        if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED || e.which === window.card.eventValue.MOUSE_LEFT) {
+          main.removeChild(formMessageError);
+          errorButton.removeEventListener(`mousedown`, remove);
+          document.removeEventListener(`click`, remove);
+          document.removeEventListener(`keydown`, remove);
+        }
+      };
 
-  const onError = () => {
+      document.addEventListener(`keydown`, remove);
+      errorButton.addEventListener(`mousedown`, remove);
+      document.addEventListener(`click`, remove);
+    }
+  };
+
+  const onError = (error) => {
     showMessage(formMessageError);
-  }
+    removePopupError();
+    throw error;
+  };
 
-  const onSuccess = () => {
-    window.pin.close();
-    showMessage(formMessageOk);
+  const setDefault = () => {
+    window.pin.clear();
     window.map.deactivate();
     fillingForm.reset();
     window.moving.setDefaultAddress();
-  }
+  };
+
+  const onSuccess = () => {
+    setDefault();
+    showMessage(formMessageOk);
+    removePopupOk();
+  };
 
   fillingForm.addEventListener(`submit`, function (e) {
-    window.upload(new FormData(fillingForm), function () {
-      onSuccess();
-    }, onError());
     e.preventDefault();
+
+    window.upload(new FormData(fillingForm), onSuccess, onError);
   });
 
   formReset.addEventListener(`click`, function () {
-    fillingForm.reset();
-    window.moving.setDefaultAddress();
+    setDefault();
   });
 
   window.form = {

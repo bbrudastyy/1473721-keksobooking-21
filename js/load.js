@@ -13,12 +13,12 @@
     NOT_FOUND: 404
   };
 
-  window.load = (onSuccess, onError)  => {
+  window.load = (onSuccess, onError) => {
     const xhr = new XMLHttpRequest();
     xhr.responseType = `json`;
 
     xhr.addEventListener(`load`, function () {
-      const error = ``;
+      let error = ``;
 
       switch (xhr.status) {
         case StatusCode.OK:
@@ -46,7 +46,7 @@
     xhr.addEventListener(`error`, function () {
       onError(`Произошла ошибка соединения`);
     });
-    
+
     xhr.addEventListener(`timeout`, function () {
       onError(`Запрос не успел выполниться за ${xhr.timeout}мс`);
     });

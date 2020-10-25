@@ -2,6 +2,8 @@
 
 (function () {
 
+  const mapPinMain = document.querySelector(`.map__pin--main`);
+
   const MainPinSize = {
     MAIN_PIN_WIDTH: 65,
     MAIN_PIN_HEIGHT: 65,
@@ -16,14 +18,18 @@
   };
 
   const InitialValuesPinAddress = {
-    LEFT: 571,
+    LEFT: 570,
     TOP: 375
   };
 
   const addMainPinEvent = () => {
 
-    window.map.mapPinMain.addEventListener(`mousedown`, function (e) {
+    mapPinMain.addEventListener(`mousedown`, function (e) {
       e.preventDefault();
+
+      if (e.which === window.card.eventValue.MOUSE_LEFT) {
+        window.map.activate();
+      }
 
       let startCoords = {
         x: e.clientX,
@@ -43,14 +49,14 @@
           y: moveEvent.clientY
         };
 
-        const valueX = window.map.mapPinMain.offsetLeft - shift.x;
-        const valueY = window.map.mapPinMain.offsetTop - shift.y;
+        const valueX = mapPinMain.offsetLeft - shift.x;
+        const valueY = mapPinMain.offsetTop - shift.y;
 
         const address = getAddressValue(valueX, valueY);
 
         if (address.valueY >= RestrictionCoords.MIN_CORD_Y && address.valueY <= RestrictionCoords.MAX_CORD_Y && address.valueX >= RestrictionCoords.MIN_CORD_X && address.valueX <= RestrictionCoords.MAX_CORD_X) {
-          window.map.mapPinMain.style.left = `${valueX}px`;
-          window.map.mapPinMain.style.top = `${valueY}px`;
+          mapPinMain.style.left = `${valueX}px`;
+          mapPinMain.style.top = `${valueY}px`;
           updateAddress();
         }
       };
@@ -65,24 +71,31 @@
       document.addEventListener(`mousemove`, onMouseMove);
       document.addEventListener(`mouseup`, onMouseUp);
     });
+
+    mapPinMain.addEventListener(`keydown`, function (e) {
+      if (e.key === window.card.eventValue.KEY_ENTER) {
+        window.map.activate();
+      }
+    });
+
   };
 
   const getAddressValue = (left, top) => {
-      const valueX = left + MainPinSize.MAIN_PIN_WIDTH / 2;
-      const valueY = top + (!window.map.getIsMapActive() ? MainPinSize.MAIN_PIN_HEIGHT / 2 : MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE);
-      return { valueX, valueY };
+    const valueX = left + MainPinSize.MAIN_PIN_WIDTH / 2;
+    const valueY = top + (!window.map.getIsMapActive() ? MainPinSize.MAIN_PIN_HEIGHT / 2 : MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE);
+    return {valueX, valueY};
   };
 
   const updateAddress = () => {
-    const address = getAddressValue(window.map.mapPinMain.offsetLeft, window.map.mapPinMain.offsetTop);
+    const address = getAddressValue(mapPinMain.offsetLeft, mapPinMain.offsetTop);
     window.form.setAddress(address.valueX, address.valueY);
   };
 
   const setDefaultAddress = () => {
-    window.map.mapPinMain.style.left = `${InitialValuesPinAddress.LEFT}px`;
-    window.map.mapPinMain.style.top = `${InitialValuesPinAddress.TOP}px`;
+    mapPinMain.style.left = `${InitialValuesPinAddress.LEFT}px`;
+    mapPinMain.style.top = `${InitialValuesPinAddress.TOP}px`;
     updateAddress();
-  }
+  };
 
   const init = () => {
     updateAddress();
