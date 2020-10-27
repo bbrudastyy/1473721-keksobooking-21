@@ -1,83 +1,173 @@
 "use strict";
 
-(function () {
-  const mapFilters = document.querySelector(`.map__filters`);
+const mapFilters = document.querySelector(`.map__filters`);
 
-  const filterType = mapFilters.querySelector(`#housing-type`);
-  // const filterPrice = mapFilters.querySelector(`#housing-price`);
-  // const filterRooms = mapFilters.querySelector(`#housing-rooms`);
-  // const filterGuests = mapFilters.querySelector(`#housing-guests`);
-  // const filterFeatures = mapFilters.querySelector(`#housing-features`);
+let pins = [];
+let count = 0;
 
-  let typeValue = `any`;
-  // let priceValue = `any`;
-  // let roomsValue = `any`;
-  // let guestsValue = `any`;
+const Prices = {
+  any: {
+    MIN: Number.NEGATIVE_INFINITY,
+    MAX: Number.POSITIVE_INFINITY
+  },
+  middle: {
+    MIN: 10000,
+    MAX: 50000
+  },
+  low: {
+    MIN: Number.NEGATIVE_INFINITY,
+    MAX: 10000
+  },
+  high: {
+    MIN: 50000,
+    MAX: Number.POSITIVE_INFINITY
+  }
+};
 
-  let pins = [];
+const FilterName = {
+  TYPE: `housing-type`,
+  GUESTS: `housing-guests`,
+  ROOMS: `housing-rooms`,
+  PRICE: `housing-price`,
+  FEATURES: `features`
+};
 
-  const getRank = (pin) => {
-    let rank = 0;
-    if (pin.offer.type === typeValue) {
-      rank += 2;
-    }
-    // if (pin.offer.price == priceValue) {
-    //   rank += 1;
-    // }
-    // if (pin.offer.rooms == roomsValue) {
-    //   rank += 1;
-    // }
-    // if (pin.offer.guests == guestsValue) {
-    //   rank += 1;
-    // }
-    return rank;
-  };
+const Filter = {
+  TYPE: `type`,
+  GUESTS: `guests`,
+  ROOMS: `rooms`
+}
 
-  const updatePins = () => {
-    window.card.close();
-    window.pin.clear();
-    window.pin.show(pins.sort(function (left, right) {
-      return getRank(right) - getRank(left);
-    }));
-  };
-
-  filterType.addEventListener(`change`, function () {
-    typeValue = filterType.value;
-    updatePins();
+const addObject = (pins) => {
+  pins.forEach(pin => {
+    pin[`matched`] = 0;
+    pin[`matches`] = {
+      features: []
+    };
   });
+};
 
-  // filterPrice.addEventListener(`change`, function () {
-  //   priceValue = filterPrice.value;
-  //   updatePins();
-  // });
-
-  // filterRooms.addEventListener(`change`, function () {
-  //   roomsValue = filterRooms.value;
-  //   updatePins();
-  // });
-
-  // filterGuests.addEventListener(`change`, function () {
-  //   guestsValue = filtefilterGuestsrType.value;
-  //   updatePins();
-  // });
-
-  const onLoadSuccess = (data) => {
-    pins = data;
-    updatePins();
+const changeFilter = (e) => {
+  switch (e.target.name) {
+    case FilterName.TYPE:
+      simpleFilter(Filter.TYPE, e.target.value);
+      count++;
+      break;
+    case FilterName.GUESTS:
+      simpleFilter(Filter.GUESTS, e.target.value);
+      break;
+    case FilterName.ROOMS:
+      simpleFilter(Filter.ROOMS, e.target.value);
+      break;
+    case FilterName.PRICE:
+      filterPrice(e.target.value);
+      break;
+    case FilterName.FEATURES:
+      e.target.toggleAttribute(`checked`);
+      filterFeatures(e.target);
+      break;
   };
+};
 
-  const onLoadError = (error) => {
-    throw error;
-  };
+mapFilters.addEventListener(`change`, window.debounce(changeFilter));
 
-  const loadData = () => {
-    window.load(onLoadSuccess, onLoadError);
-  };
+const simpleFilter = (filter, match) => {
+  pins.forEach(pin => {
+    if (match === `any`) {
+      pin[`matches`][filter] = 1;
+    } else {
+      pin[`matches`][filter] = 0;
+      if (pin.offer[filter].toString() === match) {
+        pin[`matches`][filter]++;
+      }
+    }
+    getTotalMatch(pin);
+  });
+  updatePins();
+};
 
-  window.filter = {
-    pins,
-    updatePins,
-    loadData
-  };
+const getFinalPins = (pins) => {
+  let finalPins = [];
+  // let countPin = 0;
+  // console.log(count);
+  pins.forEach(pin => {
+    if (pin[`matched`] === 1) {
+      if (finalPins.length < 5) {
+        finalPins.push(pin);
+      }
+    }
+  });
+  return finalPins;
+};
 
-})();
+const updatePins = () => {
+  console.log(pins);
+  window.card.close();
+  window.pin.clear();
+  pins.sort((a, b) => a.matched < b.matched ? 1 : -1);
+  window.pin.show(getFinalPins(pins));
+}
+
+const getTotalMatch = (pin) => {
+  pin[`matched`] = 0;
+  Object.keys(pin[`matches`]).forEach(key => {
+    if (key === `features`) {
+      if (pin[`matches`][key].length === 0) {
+        pin[`matched`] += 1;
+      } else {
+        pin[`matched`] += pin[`matches`][key].length + 1;
+      }
+    } else {
+      pin[`matched`] += pin[`matches`][key];
+    }
+  });
+};
+
+const filterPrice = (value) => {
+  pins.forEach(pin => {
+    pin[`matches`][`price`] = 0;
+    if (value === `any`) {
+      pin[`matches`][`price`] = 1;
+    }
+    if (pin.offer.price >= Prices[value].MIN && pin.offer.price <= Prices[value].MAX) {
+      pin[`matches`][`price`]++;
+    }
+    getTotalMatch(pin);
+  });
+  updatePins();
+};
+
+const filterFeatures = (target) => {
+  pins.forEach(pin => {
+    pin.offer.features.forEach(feature => {
+      if (feature === target.value) {
+        if (target.checked) {
+          pin[`matches`][`features`].push(feature);
+        } else {
+          pin[`matches`][`features`].splice(pin[`matches`][`features`].indexOf(feature), 1);
+        }
+      }
+    });
+    getTotalMatch(pin);
+  });
+  updatePins();
+};
+
+const onLoadSuccess = (data) => {
+  pins = data.slice();
+  addObject(pins);
+  updatePins();
+};
+
+const onLoadError = (error) => {
+  throw error;
+};
+
+const loadData = () => {
+  window.load(onLoadSuccess, onLoadError);
+};
+
+window.filter = {
+  pins,
+  loadData
+};
