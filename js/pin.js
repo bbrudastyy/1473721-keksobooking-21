@@ -7,13 +7,11 @@ const PinSize = {
   PIN_HEIGHT: 40
 };
 
-const MAX_ROOMS_LENGTH = 5;
-
 const pinContainer = document.querySelector(`.map__pins`);
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 
 const addPinEvent = (room, pinElement) => {
-  pinElement.addEventListener(`click`, function (evt) {
+  pinElement.addEventListener(`click`, (evt) => {
     if (evt.target.classList.contains(`map__pin--main`)) {
       return;
     }
@@ -35,7 +33,6 @@ const getPins = (rooms) => {
   const fragment = document.createDocumentFragment();
 
   for (let i = 0; i < rooms.length; i++) {
-    // for (let i = 0; i < MAX_ROOMS_LENGTH; i++) {
     const room = rooms[i];
     const pinElement = getPin(room);
 
@@ -53,7 +50,7 @@ const show = (data) => {
 };
 
 const clear = () => {
-  pins.forEach(function (pin) {
+  pins.forEach((pin) => {
     pin.remove();
   });
 

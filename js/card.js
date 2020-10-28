@@ -27,19 +27,19 @@ const EventValue = {
 let card = null;
 
 const addCloseCardEvent = (cardElement) => {
-  cardElement.querySelector(`.popup__close`).addEventListener(`click`, function () {
+  cardElement.querySelector(`.popup__close`).addEventListener(`click`, () => {
     close();
   });
 
-  document.addEventListener(`keydown`, function (e) {
+  document.addEventListener(`keydown`, (e) => {
     if (e.key === EventValue.KEY_ESCAPE || e.key === EventValue.KEY_ESCAPE_ABBREVIATED) {
       e.preventDefault();
-      close();
+      closeCard();
     }
   });
 };
 
-const close = () => {
+const closeCard = () => {
   if (card !== null) {
     card.remove();
     card = null;
@@ -47,7 +47,7 @@ const close = () => {
 };
 
 const show = (pin) => {
-  close();
+  closeCard();
   card = getItemCard(pin);
   const mapFilter = document.querySelector(`.map__filters-container`);
   const mapFilterParent = mapFilter.parentNode;
@@ -107,7 +107,7 @@ const getItemCard = (room) => {
 window.card = {
   roomType: RoomType,
   show,
-  close,
+  close: closeCard,
   card,
   eventValue: EventValue
 };

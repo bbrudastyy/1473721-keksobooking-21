@@ -1,6 +1,6 @@
 /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 (() => {
-"use strict";
 /*!********************!*\
   !*** ./js/load.js ***!
   \********************/
@@ -8,7 +8,7 @@
 /*! runtime requirements:  */
 
 
-const URL = ` https://21.javascript.pages.academy/keksobooking/data`;
+const URL_ADDRESS = ` https://21.javascript.pages.academy/keksobooking/data`;
 
 const TIMEOUT_STATUS = 10000;
 
@@ -23,7 +23,7 @@ window.load = (onSuccess, onError) => {
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
-  xhr.addEventListener(`load`, function () {
+  xhr.addEventListener(`load`, () => {
     let error = ``;
 
     switch (xhr.status) {
@@ -49,24 +49,23 @@ window.load = (onSuccess, onError) => {
     }
   });
 
-  xhr.addEventListener(`error`, function () {
+  xhr.addEventListener(`error`, () => {
     onError(`Произошла ошибка соединения`);
   });
 
-  xhr.addEventListener(`timeout`, function () {
+  xhr.addEventListener(`timeout`, () => {
     onError(`Запрос не успел выполниться за ${xhr.timeout}мс`);
   });
 
   xhr.timeout = TIMEOUT_STATUS;
 
-  xhr.open(`GET`, URL);
+  xhr.open(`GET`, URL_ADDRESS);
   xhr.send();
 };
 
 })();
 
 (() => {
-"use strict";
 /*!************************!*\
   !*** ./js/debounce.js ***!
   \************************/
@@ -76,14 +75,14 @@ window.load = (onSuccess, onError) => {
 
 const DEBOUNCE_INTERVAL = 500;
 
-window.debounce = function (cb) {
+window.debounce = (cb) => {
   let lastTimeout = null;
 
-  return function (...parameters) {
+  return (...parameters) => {
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
-    lastTimeout = window.setTimeout(function () {
+    lastTimeout = window.setTimeout(() => {
       cb(...parameters);
     }, DEBOUNCE_INTERVAL);
   };
@@ -92,7 +91,6 @@ window.debounce = function (cb) {
 })();
 
 (() => {
-"use strict";
 /*!********************!*\
   !*** ./js/card.js ***!
   \********************/
@@ -127,19 +125,19 @@ const EventValue = {
 let card = null;
 
 const addCloseCardEvent = (cardElement) => {
-  cardElement.querySelector(`.popup__close`).addEventListener(`click`, function () {
+  cardElement.querySelector(`.popup__close`).addEventListener(`click`, () => {
     close();
   });
 
-  document.addEventListener(`keydown`, function (e) {
+  document.addEventListener(`keydown`, (e) => {
     if (e.key === EventValue.KEY_ESCAPE || e.key === EventValue.KEY_ESCAPE_ABBREVIATED) {
       e.preventDefault();
-      close();
+      closeCard();
     }
   });
 };
 
-const close = () => {
+const closeCard = () => {
   if (card !== null) {
     card.remove();
     card = null;
@@ -147,7 +145,7 @@ const close = () => {
 };
 
 const show = (pin) => {
-  close();
+  closeCard();
   card = getItemCard(pin);
   const mapFilter = document.querySelector(`.map__filters-container`);
   const mapFilterParent = mapFilter.parentNode;
@@ -207,7 +205,7 @@ const getItemCard = (room) => {
 window.card = {
   roomType: RoomType,
   show,
-  close,
+  close: closeCard,
   card,
   eventValue: EventValue
 };
@@ -216,7 +214,6 @@ window.card = {
 })();
 
 (() => {
-"use strict";
 /*!**********************!*\
   !*** ./js/filter.js ***!
   \**********************/
@@ -225,9 +222,16 @@ window.card = {
 
 
 const mapFilters = document.querySelector(`.map__filters`);
+const housingType = mapFilters.querySelector(`#housing-type`);
+const housingPrice = mapFilters.querySelector(`#housing-price`);
+const housingRooms = mapFilters.querySelector(`#housing-rooms`);
+const housingGuests = mapFilters.querySelector(`#housing-guests`);
+const housingFeatures = mapFilters.querySelector(`#housing-features`);
+
+const MAX_LENGTH = 5;
+const ANY_VALUE = `any`;
 
 let pins = [];
-let count = 0;
 
 const Prices = {
   any: {
@@ -258,129 +262,124 @@ const FilterName = {
 
 const Filter = {
   TYPE: `type`,
+  PRICE: `price`,
+  ROOMS: `rooms`,
   GUESTS: `guests`,
-  ROOMS: `rooms`
-}
-
-const addObject = (pins) => {
-  pins.forEach(pin => {
-    pin[`matched`] = 0;
-    pin[`matches`] = {
-      features: []
-    };
-  });
+  FEATURES: `features`
 };
 
 const changeFilter = (e) => {
   switch (e.target.name) {
     case FilterName.TYPE:
-      simpleFilter(Filter.TYPE, e.target.value);
-      count++;
+      window.pin.show(getFiltredPins(pins));
       break;
     case FilterName.GUESTS:
-      simpleFilter(Filter.GUESTS, e.target.value);
+      window.pin.show(getFiltredPins(pins));
+
       break;
     case FilterName.ROOMS:
-      simpleFilter(Filter.ROOMS, e.target.value);
+      window.pin.show(getFiltredPins(pins));
+
       break;
     case FilterName.PRICE:
-      filterPrice(e.target.value);
+      window.pin.show(getFiltredPins(pins));
+
       break;
     case FilterName.FEATURES:
-      e.target.toggleAttribute(`checked`);
-      filterFeatures(e.target);
+      window.pin.show(getFiltredPins(pins));
       break;
-  };
+  }
 };
 
 mapFilters.addEventListener(`change`, window.debounce(changeFilter));
 
-const simpleFilter = (filter, match) => {
-  pins.forEach(pin => {
-    if (match === `any`) {
-      pin[`matches`][filter] = 1;
-    } else {
-      pin[`matches`][filter] = 0;
-      if (pin.offer[filter].toString() === match) {
-        pin[`matches`][filter]++;
-      }
-    }
-    getTotalMatch(pin);
-  });
-  updatePins();
+const getMatchedPin = (pin, value, typeFilter) => {
+
+  if (value === ANY_VALUE) {
+    return true;
+  }
+
+  switch (typeFilter) {
+    case Filter.TYPE:
+      return pin.offer.type === value;
+    case Filter.PRICE:
+      return (pin.offer.price >= Prices[value].MIN && pin.offer.price < Prices[value].MAX);
+    case Filter.ROOMS:
+      return pin.offer.rooms === parseInt(value, 10);
+    case Filter.GUESTS:
+      return pin.offer.guests === parseInt(value, 10);
+  }
+
+  return false;
 };
 
-const getFinalPins = (pins) => {
-  let finalPins = [];
-  // let countPin = 0;
-  // console.log(count);
-  pins.forEach(pin => {
-    if (pin[`matched`] === 1) {
-      if (finalPins.length < 5) {
-        finalPins.push(pin);
-      }
-    }
+const pressingFeatures = (filterFeatures) => {
+  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
+  features.forEach((feature) => {
+    feature.addEventListener(`click`, () => {
+      feature.toggleAttribute(`checked`);
+    });
   });
-  return finalPins;
 };
 
-const updatePins = () => {
-  console.log(pins);
+const getArrayFeatures = (filterFeatures) => {
+  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
+  let featuresArray = [];
+  features.forEach((feature) => {
+    if (feature.checked) {
+      featuresArray.push(feature.value);
+    }
+  });
+  return featuresArray;
+};
+
+pressingFeatures(housingFeatures);
+
+const checkMatchFeatures = (pin, features) => {
+  const a = features(housingFeatures);
+
+  if (a.length === 0) {
+    return true;
+  }
+
+  if (pin.offer.features.some((r) => a.includes(r))) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const getIsPinAvaliable = (pin) => {
+  return getMatchedPin(pin, housingType.value, Filter.TYPE) && getMatchedPin(pin, housingPrice.value, Filter.PRICE) && getMatchedPin(pin, housingRooms.value, Filter.ROOMS) && getMatchedPin(pin, housingGuests.value, Filter.GUESTS) && checkMatchFeatures(pin, getArrayFeatures);
+};
+
+const getFiltredPins = (pinsArray) => {
   window.card.close();
   window.pin.clear();
-  pins.sort((a, b) => a.matched < b.matched ? 1 : -1);
-  window.pin.show(getFinalPins(pins));
-}
 
-const getTotalMatch = (pin) => {
-  pin[`matched`] = 0;
-  Object.keys(pin[`matches`]).forEach(key => {
-    if (key === `features`) {
-      if (pin[`matches`][key].length === 0) {
-        pin[`matched`] += 1;
-      } else {
-        pin[`matched`] += pin[`matches`][key].length + 1;
-      }
-    } else {
-      pin[`matched`] += pin[`matches`][key];
-    }
-  });
-};
+  const result = [];
 
-const filterPrice = (value) => {
-  pins.forEach(pin => {
-    pin[`matches`][`price`] = 0;
-    if (value === `any`) {
-      pin[`matches`][`price`] = 1;
-    }
-    if (pin.offer.price >= Prices[value].MIN && pin.offer.price <= Prices[value].MAX) {
-      pin[`matches`][`price`]++;
-    }
-    getTotalMatch(pin);
-  });
-  updatePins();
-};
+  for (let i = 0; i < pinsArray.length; i++) {
+    const pin = pinsArray[i];
 
-const filterFeatures = (target) => {
-  pins.forEach(pin => {
-    pin.offer.features.forEach(feature => {
-      if (feature === target.value) {
-        if (target.checked) {
-          pin[`matches`][`features`].push(feature);
-        } else {
-          pin[`matches`][`features`].splice(pin[`matches`][`features`].indexOf(feature), 1);
-        }
-      }
-    });
-    getTotalMatch(pin);
-  });
-  updatePins();
+    const isPinAvaliable = getIsPinAvaliable(pin);
+
+    if (isPinAvaliable) {
+      result.push(pin);
+    }
+
+
+    if (result.length === MAX_LENGTH) {
+      break;
+    }
+  }
+
+  return result;
 };
 
 const onLoadSuccess = (data) => {
   pins = data.slice();
-  addObject(pins);
-  updatePins();
+  window.pin.show(getFiltredPins(pins));
 };
 
 const onLoadError = (error) => {
@@ -393,13 +392,14 @@ const loadData = () => {
 
 window.filter = {
   pins,
-  loadData
+  loadData,
+  mapFilters,
+  housingFeatures
 };
 
 })();
 
 (() => {
-"use strict";
 /*!*******************!*\
   !*** ./js/map.js ***!
   \*******************/
@@ -479,7 +479,6 @@ window.map = {
 })();
 
 (() => {
-"use strict";
 /*!*******************!*\
   !*** ./js/pin.js ***!
   \*******************/
@@ -494,13 +493,11 @@ const PinSize = {
   PIN_HEIGHT: 40
 };
 
-const MAX_ROOMS_LENGTH = 5;
-
 const pinContainer = document.querySelector(`.map__pins`);
 const pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 
 const addPinEvent = (room, pinElement) => {
-  pinElement.addEventListener(`click`, function (evt) {
+  pinElement.addEventListener(`click`, (evt) => {
     if (evt.target.classList.contains(`map__pin--main`)) {
       return;
     }
@@ -522,7 +519,6 @@ const getPins = (rooms) => {
   const fragment = document.createDocumentFragment();
 
   for (let i = 0; i < rooms.length; i++) {
-    // for (let i = 0; i < MAX_ROOMS_LENGTH; i++) {
     const room = rooms[i];
     const pinElement = getPin(room);
 
@@ -540,7 +536,7 @@ const show = (data) => {
 };
 
 const clear = () => {
-  pins.forEach(function (pin) {
+  pins.forEach((pin) => {
     pin.remove();
   });
 
@@ -557,7 +553,6 @@ window.pin = {
 })();
 
 (() => {
-"use strict";
 /*!**********************!*\
   !*** ./js/upload.js ***!
   \**********************/
@@ -565,7 +560,7 @@ window.pin = {
 /*! runtime requirements:  */
 
 
-const URL = `https://21.javascript.pages.academy/keksobooking`;
+const URL_ADDRESS = `https://21.javascript.pages.academy/keksobooking`;
 
 const StatusCode = {
   OK: 200,
@@ -580,7 +575,7 @@ window.upload = (data, onSuccess, onError) => {
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
-  xhr.addEventListener(`load`, function () {
+  xhr.addEventListener(`load`, () => {
     let error = ``;
 
     switch (xhr.status) {
@@ -606,24 +601,23 @@ window.upload = (data, onSuccess, onError) => {
     }
   });
 
-  xhr.addEventListener(`error`, function () {
+  xhr.addEventListener(`error`, () => {
     onError(`Произошла ошибка соединения`);
   });
 
-  xhr.addEventListener(`timeout`, function () {
+  xhr.addEventListener(`timeout`, () => {
     onError(`Запрос не успел выполниться за ${xhr.timeout}мс`);
   });
 
   xhr.timeout = TIMEOUT_STATUS;
 
-  xhr.open(`POST`, URL);
+  xhr.open(`POST`, URL_ADDRESS);
   xhr.send(data);
 };
 
 })();
 
 (() => {
-"use strict";
 /*!********************!*\
   !*** ./js/form.js ***!
   \********************/
@@ -638,6 +632,26 @@ const formMessageOk = document.querySelector(`#success`).content.querySelector(`
 const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
 
 const main = document.querySelector(`main`);
+
+const body = document.querySelector(`body`);
+
+const blockError = document.createElement(`div`);
+const blockErrorText = document.createElement(`a`);
+blockError.appendChild(blockErrorText);
+
+blockError.style.display = `block`;
+blockError.style.width = `100%`;
+blockError.style.height = `100%`;
+blockError.style.position = `absolute`;
+blockError.style.zIndex = `100`;
+blockError.style.top = `0`;
+blockError.style.left = `0`;
+blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
+
+blockErrorText.style.display = `inline-block`;
+blockErrorText.style.width = `550px`;
+blockErrorText.textContent = `Упс, произошла ошибка`;
+blockErrorText.style.fontSize = `xx-large`;
 
 const FormValue = {
   MIN_TITLE_LENGTH: 30,
@@ -703,7 +717,7 @@ const validateRoom = (roomElement, capacityElement) => {
 };
 
 const validateTitle = (element) => {
-  element.addEventListener(`invalid`, function () {
+  element.addEventListener(`invalid`, () => {
     if (element.validity.valueMissing) {
       element.setCustomValidity(`Обязательное поле`);
     } else {
@@ -711,7 +725,7 @@ const validateTitle = (element) => {
     }
   });
 
-  element.addEventListener(`input`, function () {
+  element.addEventListener(`input`, () => {
     const valueLength = element.value.length;
 
     if (valueLength < FormValue.MIN_TITLE_LENGTH) {
@@ -766,7 +780,6 @@ const changeDisabled = (elements) => {
     } else {
       filter.setAttribute(`disabled`, ``);
     }
-    // window.map.getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``);
   });
 };
 
@@ -784,7 +797,7 @@ const addFormValidation = () => {
   changePlaceholder(typeElement, priceElement);
   validateRoom(roomElement, capacityElement);
 
-  fillingForm.addEventListener(`change`, function (e) {
+  fillingForm.addEventListener(`change`, (e) => {
     switch (e.target.id) {
       case roomElement.id:
         validateRoom(roomElement, capacityElement);
@@ -811,14 +824,18 @@ const showMessage = (message) => {
 };
 
 const removePopupOk = () => {
-  document.addEventListener(`keydown`, function (e) {
-    if (formMessageOk) {
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
+  if (formMessageOk) {
+    const remove = (e) => {
+      e.preventDefault();
+      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED || e.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
+        document.removeEventListener(`click`, remove);
+        document.removeEventListener(`keydown`, remove);
       }
-    }
-  });
+    };
+    document.addEventListener(`click`, remove);
+    document.addEventListener(`keydown`, remove);
+  }
 };
 
 const removePopupError = () => {
@@ -841,8 +858,10 @@ const removePopupError = () => {
 };
 
 const onError = (error) => {
+  setDefault();
   showMessage(formMessageError);
   removePopupError();
+  body.appendChild(blockError);
   throw error;
 };
 
@@ -850,6 +869,8 @@ const setDefault = () => {
   window.pin.clear();
   window.map.deactivate();
   fillingForm.reset();
+  window.filter.mapFilters.reset();
+  window.filter.housingFeatures.reset();
   window.moving.setDefaultAddress();
 };
 
@@ -859,13 +880,13 @@ const onSuccess = () => {
   removePopupOk();
 };
 
-fillingForm.addEventListener(`submit`, function (e) {
+fillingForm.addEventListener(`submit`, (e) => {
   e.preventDefault();
 
   window.upload(new FormData(fillingForm), onSuccess, onError);
 });
 
-formReset.addEventListener(`click`, function () {
+formReset.addEventListener(`click`, () => {
   setDefault();
 });
 
@@ -885,27 +906,27 @@ window.form = {
   \*********************/
 /*! unknown exports (runtime-defined) */
 /*! runtime requirements:  */
+
+
 const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
 
 const fileChooserPin = document.querySelector(`.ad-form__field input[type=file]`);
 const previewPin = document.querySelector(`.ad-form-header__preview img`);
-
-const fileChooserAd = document.querySelector(`.ad-form__field input[type=file]`);
-const previewAd = document.querySelector(`.ad-form__upload img`);
-console.log(previewAd);
+const fileChooserAd = document.querySelector(`.ad-form__upload input[type=file]`);
+const previewAd = document.querySelector(`.ad-form__photo`);
 
 fileChooserPin.addEventListener(`change`, () => {
   const file = fileChooserPin.files[0];
   const fileName = file.name.toLowerCase();
 
-  const matches = FILE_TYPES.some(function (it) {
+  const matches = FILE_TYPES.some((it) => {
     return fileName.endsWith(it);
   });
 
   if (matches) {
     const reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
+    reader.addEventListener(`load`, () => {
       previewPin.src = reader.result;
     });
 
@@ -916,16 +937,22 @@ fileChooserPin.addEventListener(`change`, () => {
 fileChooserAd.addEventListener(`change`, () => {
   const file = fileChooserAd.files[0];
   const fileName = file.name.toLowerCase();
+  const fileImgage = document.createElement(`img`);
 
-  const matches = FILE_TYPES.some(function (it) {
+  fileImgage.width = `70`;
+  fileImgage.height = `70`;
+  fileImgage.alt = `Фотография жилья`;
+  previewAd.appendChild(fileImgage);
+
+  const matches = FILE_TYPES.some((it) => {
     return fileName.endsWith(it);
   });
 
   if (matches) {
     const reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
-      previewAd.src = reader.result;
+    reader.addEventListener(`load`, () => {
+      fileImgage.src = reader.result;
     });
 
     reader.readAsDataURL(file);
@@ -935,7 +962,6 @@ fileChooserAd.addEventListener(`change`, () => {
 })();
 
 (() => {
-"use strict";
 /*!**********************!*\
   !*** ./js/moving.js ***!
   \**********************/
@@ -965,12 +991,8 @@ const InitialValuesPinAddress = {
 
 const addMainPinEvent = () => {
 
-  mapPinMain.addEventListener(`mousedown`, function (e) {
+  mapPinMain.addEventListener(`mousedown`, (e) => {
     e.preventDefault();
-
-    if (e.which === window.card.eventValue.MOUSE_LEFT) {
-      window.map.activate();
-    }
 
     let startCoords = {
       x: e.clientX,
@@ -1013,18 +1035,27 @@ const addMainPinEvent = () => {
     document.addEventListener(`mouseup`, onMouseUp);
   });
 
-  mapPinMain.addEventListener(`keydown`, function (e) {
-    if (e.key === window.card.eventValue.KEY_ENTER) {
+  mapPinMain.addEventListener(`mouseup`, (e) => {
+    e.preventDefault();
+    if (e.which === window.card.eventValue.MOUSE_LEFT) {
       window.map.activate();
     }
   });
 
+  mapPinMain.addEventListener(`keydown`, (e) => {
+    if (e.key === window.card.eventValue.KEY_ENTER) {
+      window.map.activate();
+    }
+  });
 };
 
 const getAddressValue = (left, top) => {
   const valueX = left + MainPinSize.MAIN_PIN_WIDTH / 2;
   const valueY = top + (!window.map.getIsMapActive() ? MainPinSize.MAIN_PIN_HEIGHT / 2 : MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE);
-  return { valueX, valueY };
+  return {
+    valueX,
+    valueY
+  };
 };
 
 const updateAddress = () => {
@@ -1052,7 +1083,6 @@ window.moving = {
 })();
 
 (() => {
-"use strict";
 /*!********************!*\
   !*** ./js/main.js ***!
   \********************/

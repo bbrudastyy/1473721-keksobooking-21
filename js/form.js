@@ -8,6 +8,26 @@ const formMessageError = document.querySelector(`#error`).content.querySelector(
 
 const main = document.querySelector(`main`);
 
+const body = document.querySelector(`body`);
+
+const blockError = document.createElement(`div`);
+const blockErrorText = document.createElement(`a`);
+blockError.appendChild(blockErrorText);
+
+blockError.style.display = `block`;
+blockError.style.width = `100%`;
+blockError.style.height = `100%`;
+blockError.style.position = `absolute`;
+blockError.style.zIndex = `100`;
+blockError.style.top = `0`;
+blockError.style.left = `0`;
+blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
+
+blockErrorText.style.display = `inline-block`;
+blockErrorText.style.width = `550px`;
+blockErrorText.textContent = `Упс, произошла ошибка`;
+blockErrorText.style.fontSize = `xx-large`;
+
 const FormValue = {
   MIN_TITLE_LENGTH: 30,
   MAX_TITLE_LENGTH: 100
@@ -72,7 +92,7 @@ const validateRoom = (roomElement, capacityElement) => {
 };
 
 const validateTitle = (element) => {
-  element.addEventListener(`invalid`, function () {
+  element.addEventListener(`invalid`, () => {
     if (element.validity.valueMissing) {
       element.setCustomValidity(`Обязательное поле`);
     } else {
@@ -80,7 +100,7 @@ const validateTitle = (element) => {
     }
   });
 
-  element.addEventListener(`input`, function () {
+  element.addEventListener(`input`, () => {
     const valueLength = element.value.length;
 
     if (valueLength < FormValue.MIN_TITLE_LENGTH) {
@@ -135,7 +155,6 @@ const changeDisabled = (elements) => {
     } else {
       filter.setAttribute(`disabled`, ``);
     }
-    // window.map.getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``);
   });
 };
 
@@ -153,7 +172,7 @@ const addFormValidation = () => {
   changePlaceholder(typeElement, priceElement);
   validateRoom(roomElement, capacityElement);
 
-  fillingForm.addEventListener(`change`, function (e) {
+  fillingForm.addEventListener(`change`, (e) => {
     switch (e.target.id) {
       case roomElement.id:
         validateRoom(roomElement, capacityElement);
@@ -180,14 +199,18 @@ const showMessage = (message) => {
 };
 
 const removePopupOk = () => {
-  document.addEventListener(`keydown`, function (e) {
-    if (formMessageOk) {
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
+  if (formMessageOk) {
+    const remove = (e) => {
+      e.preventDefault();
+      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED || e.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
+        document.removeEventListener(`click`, remove);
+        document.removeEventListener(`keydown`, remove);
       }
-    }
-  });
+    };
+    document.addEventListener(`click`, remove);
+    document.addEventListener(`keydown`, remove);
+  }
 };
 
 const removePopupError = () => {
@@ -210,8 +233,10 @@ const removePopupError = () => {
 };
 
 const onError = (error) => {
+  setDefault();
   showMessage(formMessageError);
   removePopupError();
+  body.appendChild(blockError);
   throw error;
 };
 
@@ -219,6 +244,8 @@ const setDefault = () => {
   window.pin.clear();
   window.map.deactivate();
   fillingForm.reset();
+  window.filter.mapFilters.reset();
+  window.filter.housingFeatures.reset();
   window.moving.setDefaultAddress();
 };
 
@@ -228,13 +255,13 @@ const onSuccess = () => {
   removePopupOk();
 };
 
-fillingForm.addEventListener(`submit`, function (e) {
+fillingForm.addEventListener(`submit`, (e) => {
   e.preventDefault();
 
   window.upload(new FormData(fillingForm), onSuccess, onError);
 });
 
-formReset.addEventListener(`click`, function () {
+formReset.addEventListener(`click`, () => {
   setDefault();
 });
 

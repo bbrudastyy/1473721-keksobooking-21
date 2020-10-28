@@ -1,24 +1,24 @@
+"use strict";
+
 const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
 
 const fileChooserPin = document.querySelector(`.ad-form__field input[type=file]`);
 const previewPin = document.querySelector(`.ad-form-header__preview img`);
-
-const fileChooserAd = document.querySelector(`.ad-form__field input[type=file]`);
-const previewAd = document.querySelector(`.ad-form__upload img`);
-console.log(previewAd);
+const fileChooserAd = document.querySelector(`.ad-form__upload input[type=file]`);
+const previewAd = document.querySelector(`.ad-form__photo`);
 
 fileChooserPin.addEventListener(`change`, () => {
   const file = fileChooserPin.files[0];
   const fileName = file.name.toLowerCase();
 
-  const matches = FILE_TYPES.some(function (it) {
+  const matches = FILE_TYPES.some((it) => {
     return fileName.endsWith(it);
   });
 
   if (matches) {
     const reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
+    reader.addEventListener(`load`, () => {
       previewPin.src = reader.result;
     });
 
@@ -29,16 +29,22 @@ fileChooserPin.addEventListener(`change`, () => {
 fileChooserAd.addEventListener(`change`, () => {
   const file = fileChooserAd.files[0];
   const fileName = file.name.toLowerCase();
+  const fileImgage = document.createElement(`img`);
 
-  const matches = FILE_TYPES.some(function (it) {
+  fileImgage.width = `70`;
+  fileImgage.height = `70`;
+  fileImgage.alt = `Фотография жилья`;
+  previewAd.appendChild(fileImgage);
+
+  const matches = FILE_TYPES.some((it) => {
     return fileName.endsWith(it);
   });
 
   if (matches) {
     const reader = new FileReader();
 
-    reader.addEventListener(`load`, function () {
-      previewAd.src = reader.result;
+    reader.addEventListener(`load`, () => {
+      fileImgage.src = reader.result;
     });
 
     reader.readAsDataURL(file);

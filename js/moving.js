@@ -22,12 +22,8 @@ const InitialValuesPinAddress = {
 
 const addMainPinEvent = () => {
 
-  mapPinMain.addEventListener(`mousedown`, function (e) {
+  mapPinMain.addEventListener(`mousedown`, (e) => {
     e.preventDefault();
-
-    if (e.which === window.card.eventValue.MOUSE_LEFT) {
-      window.map.activate();
-    }
 
     let startCoords = {
       x: e.clientX,
@@ -70,18 +66,27 @@ const addMainPinEvent = () => {
     document.addEventListener(`mouseup`, onMouseUp);
   });
 
-  mapPinMain.addEventListener(`keydown`, function (e) {
-    if (e.key === window.card.eventValue.KEY_ENTER) {
+  mapPinMain.addEventListener(`mouseup`, (e) => {
+    e.preventDefault();
+    if (e.which === window.card.eventValue.MOUSE_LEFT) {
       window.map.activate();
     }
   });
 
+  mapPinMain.addEventListener(`keydown`, (e) => {
+    if (e.key === window.card.eventValue.KEY_ENTER) {
+      window.map.activate();
+    }
+  });
 };
 
 const getAddressValue = (left, top) => {
   const valueX = left + MainPinSize.MAIN_PIN_WIDTH / 2;
   const valueY = top + (!window.map.getIsMapActive() ? MainPinSize.MAIN_PIN_HEIGHT / 2 : MainPinSize.MAIN_PIN_HEIGHT + MainPinSize.MAIN_PIN_NEEDLE);
-  return { valueX, valueY };
+  return {
+    valueX,
+    valueY
+  };
 };
 
 const updateAddress = () => {
