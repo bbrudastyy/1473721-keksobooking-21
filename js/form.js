@@ -5,28 +5,10 @@ const formFieldset = fillingForm.querySelectorAll(`fieldset`);
 const formReset = fillingForm.querySelector(`.ad-form__reset`);
 const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
 const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
-
 const main = document.querySelector(`main`);
-
 const body = document.querySelector(`body`);
-
 const blockError = document.createElement(`div`);
 const blockErrorText = document.createElement(`a`);
-blockError.appendChild(blockErrorText);
-
-blockError.style.display = `block`;
-blockError.style.width = `100%`;
-blockError.style.height = `100%`;
-blockError.style.position = `absolute`;
-blockError.style.zIndex = `100`;
-blockError.style.top = `0`;
-blockError.style.left = `0`;
-blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
-
-blockErrorText.style.display = `inline-block`;
-blockErrorText.style.width = `550px`;
-blockErrorText.textContent = `Упс, произошла ошибка`;
-blockErrorText.style.fontSize = `xx-large`;
 
 const FormValue = {
   MIN_TITLE_LENGTH: 30,
@@ -69,6 +51,22 @@ const roomCapacityValues = {
   [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
 };
 
+blockError.appendChild(blockErrorText);
+
+blockError.style.display = `block`;
+blockError.style.width = `100%`;
+blockError.style.height = `100%`;
+blockError.style.position = `absolute`;
+blockError.style.zIndex = `100`;
+blockError.style.top = `0`;
+blockError.style.left = `0`;
+blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
+
+blockErrorText.style.display = `inline-block`;
+blockErrorText.style.width = `550px`;
+blockErrorText.textContent = `Упс, произошла ошибка`;
+blockErrorText.style.fontSize = `xx-large`;
+
 const setAddress = (valueX, valueY) => {
   document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
 };
@@ -77,7 +75,7 @@ const isRoomValid = (roomValue, capacityValue) => {
   return roomCapacityValues[roomValue].includes(capacityValue);
 };
 
-const validateRoom = (roomElement, capacityElement) => {
+const verifyRoom = (roomElement, capacityElement) => {
   let message = ``;
 
   const roomValue = parseInt(roomElement.value, 10);
@@ -91,7 +89,7 @@ const validateRoom = (roomElement, capacityElement) => {
   fillingForm.reportValidity();
 };
 
-const validateTitle = (element) => {
+const verifyTitle = (element) => {
   element.addEventListener(`invalid`, () => {
     if (element.validity.valueMissing) {
       element.setCustomValidity(`Обязательное поле`);
@@ -114,7 +112,7 @@ const validateTitle = (element) => {
   fillingForm.reportValidity();
 };
 
-const validateType = (typeElement, priceElement) => {
+const verifyType = (typeElement, priceElement) => {
   let message = ``;
 
   const priceValue = parseInt(priceElement.value, 10);
@@ -168,20 +166,20 @@ const addFormValidation = () => {
   addressElement.setAttribute(`readonly`, ``);
   const timeInElement = fillingForm.querySelector(`#timein`);
   const timeOutElement = fillingForm.querySelector(`#timeout`);
-  validateTitle(titleElement);
+  verifyTitle(titleElement);
   changePlaceholder(typeElement, priceElement);
-  validateRoom(roomElement, capacityElement);
+  verifyRoom(roomElement, capacityElement);
 
-  fillingForm.addEventListener(`change`, (e) => {
-    switch (e.target.id) {
+  fillingForm.addEventListener(`change`, (evt) => {
+    switch (evt.target.id) {
       case roomElement.id:
-        validateRoom(roomElement, capacityElement);
+        verifyRoom(roomElement, capacityElement);
         break;
       case priceElement.id:
-        validateType(typeElement, priceElement);
+        verifyType(typeElement, priceElement);
         break;
       case typeElement.id:
-        validateType(typeElement, priceElement);
+        verifyType(typeElement, priceElement);
         changePlaceholder(typeElement, priceElement);
         break;
       case timeInElement.id:
@@ -200,39 +198,61 @@ const showMessage = (message) => {
 
 const removePopupOk = () => {
   if (formMessageOk) {
-    const remove = (e) => {
-      e.preventDefault();
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED || e.which === window.card.eventValue.MOUSE_LEFT) {
+    const removePopupForKey = (evt) => {
+      evt.preventDefault();
+      if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`click`, remove);
-        document.removeEventListener(`keydown`, remove);
+        document.removeEventListener(`keydown`, removePopupForKey);
       }
     };
-    document.addEventListener(`click`, remove);
-    document.addEventListener(`keydown`, remove);
+
+    const removePopupForClick = (evt) => {
+      evt.preventDefault();
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+        main.removeChild(formMessageOk);
+        document.removeEventListener(`click`, removePopupForClick);
+      }
+    };
+
+    document.addEventListener(`keydown`, removePopupForKey);
+    document.addEventListener(`click`, removePopupForClick);
   }
 };
 
 const removePopupError = () => {
   const errorButton = document.querySelector(`.error__button`);
   if (formMessageError) {
-    const remove = (e) => {
-      e.preventDefault();
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED || e.which === window.card.eventValue.MOUSE_LEFT) {
+    const removePopupForKey = (evt) => {
+      evt.preventDefault();
+      if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
-        errorButton.removeEventListener(`mousedown`, remove);
-        document.removeEventListener(`click`, remove);
-        document.removeEventListener(`keydown`, remove);
+        document.removeEventListener(`keydown`, removePopupForKey);
       }
     };
 
-    document.addEventListener(`keydown`, remove);
-    errorButton.addEventListener(`mousedown`, remove);
-    document.addEventListener(`click`, remove);
+    const removePopupForClick = (evt) => {
+      evt.preventDefault();
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+        main.removeChild(formMessageError);
+        document.removeEventListener(`click`, removePopupForClick);
+      }
+    };
+
+    const removePopupForButtonClick = (evt) => {
+      evt.preventDefault();
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+        main.removeChild(formMessageError);
+        errorButton.removeEventListener(`mousedown`, removePopupForButtonClick);
+      }
+    };
+
+    document.addEventListener(`keydown`, removePopupForKey);
+    document.addEventListener(`click`, removePopupForClick);
+    errorButton.addEventListener(`mousedown`, removePopupForButtonClick);
   }
 };
 
-const onError = (error) => {
+const onLoadError = (error) => {
   setDefault();
   showMessage(formMessageError);
   removePopupError();
@@ -242,23 +262,23 @@ const onError = (error) => {
 
 const setDefault = () => {
   window.pin.clear();
-  window.map.deactivate();
+  window.map.getStateDeactive();
   fillingForm.reset();
   window.filter.mapFilters.reset();
   window.filter.housingFeatures.reset();
   window.moving.setDefaultAddress();
 };
 
-const onSuccess = () => {
+const onLoadSuccess = () => {
   setDefault();
   showMessage(formMessageOk);
   removePopupOk();
 };
 
-fillingForm.addEventListener(`submit`, (e) => {
-  e.preventDefault();
+fillingForm.addEventListener(`submit`, (evt) => {
+  evt.preventDefault();
 
-  window.upload(new FormData(fillingForm), onSuccess, onError);
+  window.upload(new FormData(fillingForm), onLoadSuccess, onLoadError);
 });
 
 formReset.addEventListener(`click`, () => {

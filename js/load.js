@@ -1,7 +1,6 @@
 "use strict";
 
 const URL_ADDRESS = ` https://21.javascript.pages.academy/keksobooking/data`;
-
 const TIMEOUT_STATUS = 10000;
 
 const StatusCode = {

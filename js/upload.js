@@ -1,6 +1,7 @@
 "use strict";
 
 const URL_ADDRESS = `https://21.javascript.pages.academy/keksobooking`;
+const TIMEOUT_STATUS = 10000;
 
 const StatusCode = {
   OK: 200,
@@ -8,8 +9,6 @@ const StatusCode = {
   UNAUTHORIZED: 401,
   NOT_FOUND: 404
 };
-
-const TIMEOUT_STATUS = 10000;
 
 window.upload = (data, onSuccess, onError) => {
   const xhr = new XMLHttpRequest();

@@ -1,5 +1,8 @@
 "use strict";
 
+const MAX_LENGTH = 5;
+const ANY_VALUE = `any`;
+
 const mapFilters = document.querySelector(`.map__filters`);
 const housingType = mapFilters.querySelector(`#housing-type`);
 const housingPrice = mapFilters.querySelector(`#housing-price`);
@@ -7,27 +10,24 @@ const housingRooms = mapFilters.querySelector(`#housing-rooms`);
 const housingGuests = mapFilters.querySelector(`#housing-guests`);
 const housingFeatures = mapFilters.querySelector(`#housing-features`);
 
-const MAX_LENGTH = 5;
-const ANY_VALUE = `any`;
-
 let pins = [];
 
-const Prices = {
+const pricesValueTranslate = {
   any: {
-    MIN: Number.NEGATIVE_INFINITY,
-    MAX: Number.POSITIVE_INFINITY
+    min: Number.NEGATIVE_INFINITY,
+    max: Number.POSITIVE_INFINITY
   },
   middle: {
-    MIN: 10000,
-    MAX: 50000
+    min: 10000,
+    max: 50000
   },
   low: {
-    MIN: Number.NEGATIVE_INFINITY,
-    MAX: 10000
+    min: Number.NEGATIVE_INFINITY,
+    max: 10000
   },
   high: {
-    MIN: 50000,
-    MAX: Number.POSITIVE_INFINITY
+    min: 50000,
+    max: Number.POSITIVE_INFINITY
   }
 };
 
@@ -47,14 +47,13 @@ const Filter = {
   FEATURES: `features`
 };
 
-const changeFilter = (e) => {
-  switch (e.target.name) {
+const changeFilter = (evt) => {
+  switch (evt.target.name) {
     case FilterName.TYPE:
       window.pin.show(getFiltredPins(pins));
       break;
     case FilterName.GUESTS:
       window.pin.show(getFiltredPins(pins));
-
       break;
     case FilterName.ROOMS:
       window.pin.show(getFiltredPins(pins));
@@ -72,7 +71,7 @@ const changeFilter = (e) => {
 
 mapFilters.addEventListener(`change`, window.debounce(changeFilter));
 
-const getMatchedPin = (pin, value, typeFilter) => {
+const getMatchPin = (pin, value, typeFilter) => {
 
   if (value === ANY_VALUE) {
     return true;
@@ -82,7 +81,7 @@ const getMatchedPin = (pin, value, typeFilter) => {
     case Filter.TYPE:
       return pin.offer.type === value;
     case Filter.PRICE:
-      return (pin.offer.price >= Prices[value].MIN && pin.offer.price < Prices[value].MAX);
+      return (pin.offer.price >= pricesValueTranslate[value].min && pin.offer.price < pricesValueTranslate[value].max);
     case Filter.ROOMS:
       return pin.offer.rooms === parseInt(value, 10);
     case Filter.GUESTS:
@@ -90,6 +89,20 @@ const getMatchedPin = (pin, value, typeFilter) => {
   }
 
   return false;
+};
+
+const checkMatchFeatures = (pin, features) => {
+  const a = features(housingFeatures);
+
+  if (a.length === 0) {
+    return true;
+  }
+
+  if (pin.offer.features.some((r) => a.includes(r))) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 const pressingFeatures = (filterFeatures) => {
@@ -114,22 +127,8 @@ const getArrayFeatures = (filterFeatures) => {
 
 pressingFeatures(housingFeatures);
 
-const checkMatchFeatures = (pin, features) => {
-  const a = features(housingFeatures);
-
-  if (a.length === 0) {
-    return true;
-  }
-
-  if (pin.offer.features.some((r) => a.includes(r))) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
 const getIsPinAvaliable = (pin) => {
-  return getMatchedPin(pin, housingType.value, Filter.TYPE) && getMatchedPin(pin, housingPrice.value, Filter.PRICE) && getMatchedPin(pin, housingRooms.value, Filter.ROOMS) && getMatchedPin(pin, housingGuests.value, Filter.GUESTS) && checkMatchFeatures(pin, getArrayFeatures);
+  return getMatchPin(pin, housingType.value, Filter.TYPE) && getMatchPin(pin, housingPrice.value, Filter.PRICE) && getMatchPin(pin, housingRooms.value, Filter.ROOMS) && getMatchPin(pin, housingGuests.value, Filter.GUESTS) && checkMatchFeatures(pin, getArrayFeatures);
 };
 
 const getFiltredPins = (pinsArray) => {

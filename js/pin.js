@@ -20,7 +20,7 @@ const addPinEvent = (room, pinElement) => {
   });
 };
 
-const getPin = (room) => {
+const getElement = (room) => {
   const pinElement = pinTemplate.cloneNode(true);
   pinElement.setAttribute(`style`, `left: ${room.location.x - PinSize.PIN_WIDTH / 2}px; top: ${room.location.y - PinSize.PIN_HEIGHT}px`);
   pinElement.querySelector(`img`).src = room.author.avatar;
@@ -29,12 +29,12 @@ const getPin = (room) => {
   return pinElement;
 };
 
-const getPins = (rooms) => {
+const getElements = (rooms) => {
   const fragment = document.createDocumentFragment();
 
   for (let i = 0; i < rooms.length; i++) {
     const room = rooms[i];
-    const pinElement = getPin(room);
+    const pinElement = getElement(room);
 
     pins.push(pinElement);
 
@@ -46,7 +46,7 @@ const getPins = (rooms) => {
 };
 
 const show = (data) => {
-  pinContainer.appendChild(getPins(data));
+  pinContainer.appendChild(getElements(data));
 };
 
 const clear = () => {

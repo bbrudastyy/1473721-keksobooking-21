@@ -22,12 +22,12 @@ const InitialValuesPinAddress = {
 
 const addMainPinEvent = () => {
 
-  mapPinMain.addEventListener(`mousedown`, (e) => {
-    e.preventDefault();
+  mapPinMain.addEventListener(`mousedown`, (evt) => {
+    evt.preventDefault();
 
     let startCoords = {
-      x: e.clientX,
-      y: e.clientY
+      x: evt.clientX,
+      y: evt.clientY
     };
 
     const onMouseMove = (moveEvent) => {
@@ -66,16 +66,16 @@ const addMainPinEvent = () => {
     document.addEventListener(`mouseup`, onMouseUp);
   });
 
-  mapPinMain.addEventListener(`mouseup`, (e) => {
-    e.preventDefault();
-    if (e.which === window.card.eventValue.MOUSE_LEFT) {
-      window.map.activate();
+  mapPinMain.addEventListener(`mouseup`, (evt) => {
+    evt.preventDefault();
+    if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+      window.map.getStateActive();
     }
   });
 
-  mapPinMain.addEventListener(`keydown`, (e) => {
-    if (e.key === window.card.eventValue.KEY_ENTER) {
-      window.map.activate();
+  mapPinMain.addEventListener(`keydown`, (evt) => {
+    if (evt.key === window.card.eventValue.KEY_ENTER) {
+      window.map.getStateActive();
     }
   });
 };

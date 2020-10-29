@@ -18,7 +18,6 @@ const changeDisabled = (elements) => {
     } else {
       filter.setAttribute(`disabled`, ``);
     }
-    // getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``);
   });
 };
 
@@ -28,43 +27,43 @@ const changeDisabledItems = () => {
   window.form.changeDisabled(window.form.formFieldset);
 };
 
-const activateMap = () => {
+const activate = () => {
   window.moving.updateAddress();
   map.classList.remove(`map--faded`);
   window.form.fillingForm.classList.remove(`ad-form--disabled`);
   changeDisabledItems();
 };
 
-const activate = () => {
+const getStateActive = () => {
   if (isMapActive) {
     return;
   }
 
   isMapActive = true;
-  activateMap();
+  activate();
   window.filter.loadData();
 };
 
-const deactivateMap = () => {
+const deactivate = () => {
   window.moving.updateAddress();
   map.classList.add(`map--faded`);
   window.form.fillingForm.classList.add(`ad-form--disabled`);
   changeDisabledItems();
 };
 
-const deactivate = () => {
+const getStateDeactive = () => {
   if (!isMapActive) {
     return;
   }
 
   isMapActive = false;
-  deactivateMap();
+  deactivate();
 };
 
 window.map = {
   map,
   changeDisabledItems,
   getIsMapActive,
-  activate,
-  deactivate
+  getStateActive,
+  getStateDeactive
 };
