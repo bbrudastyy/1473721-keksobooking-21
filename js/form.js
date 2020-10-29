@@ -1,247 +1,285 @@
 "use strict";
-(function () {
-  const fillingForm = document.querySelector(`.ad-form`);
-  const formFieldset = fillingForm.querySelectorAll(`fieldset`);
-  const formReset = fillingForm.querySelector(`.ad-form__reset`);
-  const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
-  const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
-  const errorButton = document.querySelector(`.error__button`);
-  const main = document.querySelector(`main`);
 
-  const FormValue = {
-    MIN_TITLE_LENGTH: 30,
-    MAX_TITLE_LENGTH: 100
-  };
+const filling = document.querySelector(`.ad-form`);
+const formFieldset = filling.querySelectorAll(`fieldset`);
+const formReset = filling.querySelector(`.ad-form__reset`);
+const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
+const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
+const main = document.querySelector(`main`);
 
-  const RoomValue = {
-    ONE: 1,
-    TWO: 2,
-    THREE: 3,
-    HUNDRED: 100
-  };
+const FormValue = {
+  MIN_TITLE_LENGTH: 30,
+  MAX_TITLE_LENGTH: 100
+};
 
-  const CapacityValue = {
-    ONE: 1,
-    TWO: 2,
-    THREE: 3,
-    NOT_GUESTS: 0
-  };
+const RoomValue = {
+  ONE: 1,
+  TWO: 2,
+  THREE: 3,
+  HUNDRED: 100
+};
 
-  const PriceValue = {
-    ZERO: 0,
-    ONE_THOUSAND: 1000,
-    FIVE_THOUSAND: 5000,
-    TEN_THOUSAND: 10000,
-    MORE: 1000000
-  };
+const CapacityValue = {
+  ONE: 1,
+  TWO: 2,
+  THREE: 3,
+  NOT_GUESTS: 0
+};
 
-  const typePriceValue = {
-    [window.card.roomType.FLAT]: PriceValue.ONE_THOUSAND,
-    [window.card.roomType.BUNGALOW]: PriceValue.ZERO,
-    [window.card.roomType.HOUSE]: PriceValue.FIVE_THOUSAND,
-    [window.card.roomType.PALACE]: PriceValue.TEN_THOUSAND,
-  };
+const PriceValue = {
+  ZERO: 0,
+  ONE_THOUSAND: 1000,
+  FIVE_THOUSAND: 5000,
+  TEN_THOUSAND: 10000,
+  MORE: 1000000
+};
 
-  const roomCapacityValues = {
-    [RoomValue.ONE]: [CapacityValue.ONE],
-    [RoomValue.TWO]: [CapacityValue.ONE, CapacityValue.TWO],
-    [RoomValue.THREE]: [CapacityValue.ONE, CapacityValue.TWO, CapacityValue.THREE],
-    [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
-  };
+const typePriceValue = {
+  [window.card.roomType.FLAT]: PriceValue.ONE_THOUSAND,
+  [window.card.roomType.BUNGALOW]: PriceValue.ZERO,
+  [window.card.roomType.HOUSE]: PriceValue.FIVE_THOUSAND,
+  [window.card.roomType.PALACE]: PriceValue.TEN_THOUSAND,
+};
 
-  const InputType = {
-    TEXT: `input[type=text]`,
-    NUMBER: `input[type=number]`,
-    TEXTAREA: `textarea`
+const roomCapacityValues = {
+  [RoomValue.ONE]: [CapacityValue.ONE],
+  [RoomValue.TWO]: [CapacityValue.ONE, CapacityValue.TWO],
+  [RoomValue.THREE]: [CapacityValue.ONE, CapacityValue.TWO, CapacityValue.THREE],
+  [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
+};
+
+const changeMapActive = () => {
+  filling.classList.add(`ad-form--disabled`);
+
+  if (window.map.getIsMapActive()) {
+    filling.classList.remove(`ad-form--disabled`);
+  }
+};
+
+const setAddress = (valueX, valueY) => {
+  document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
+};
+
+const isRoomValid = (roomValue, capacityValue) => {
+  return roomCapacityValues[roomValue].includes(capacityValue);
+};
+
+const verifyRoom = (roomElement, capacityElement) => {
+  let message = ``;
+
+  const roomValue = parseInt(roomElement.value, 10);
+  const capacityValue = parseInt(capacityElement.value, 10);
+
+  if (!isRoomValid(roomValue, capacityValue)) {
+    message = `Неверное кол-во гостей`;
   }
 
-  const setAddress = (valueX, valueY) => {
-    document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
-  };
+  roomElement.setCustomValidity(message);
+  filling.reportValidity();
+};
 
-  const isRoomValid = (roomValue, capacityValue) => {
-    return roomCapacityValues[roomValue].includes(capacityValue);
-  };
-
-  const validateRoom = (roomElement, capacityElement) => {
-    let message = ``;
-
-    const roomValue = parseInt(roomElement.value, 10);
-    const capacityValue = parseInt(capacityElement.value, 10);
-
-    if (!isRoomValid(roomValue, capacityValue)) {
-      message = `Неверное кол-во гостей`;
+const verifyTitle = (element) => {
+  element.addEventListener(`invalid`, () => {
+    if (element.validity.valueMissing) {
+      element.setCustomValidity(`Обязательное поле`);
+    } else {
+      element.setCustomValidity(``);
     }
+  });
 
-    roomElement.setCustomValidity(message);
-    fillingForm.reportValidity();
+  element.addEventListener(`input`, () => {
+    const valueLength = element.value.length;
+
+    if (valueLength < FormValue.MIN_TITLE_LENGTH) {
+      element.setCustomValidity(`Ещё ${FormValue.MIN_TITLE_LENGTH - valueLength} симв.`);
+    } else if (valueLength > FormValue.MAX_TITLE_LENGTH) {
+      element.setCustomValidity(`Удалите лишние ${valueLength - FormValue.MAX_TITLE_LENGTH} симв.`);
+    } else {
+      element.setCustomValidity(``);
+    }
+  });
+  filling.reportValidity();
+};
+
+const verifyType = (typeElement, priceElement) => {
+  let message = ``;
+
+  const priceValue = parseInt(priceElement.value, 10);
+  let dictionaryVar = typeElement.value.toUpperCase();
+
+  const isPriceValid = (typeValuePrice, price) => {
+    return price >= typeValuePrice;
   };
 
-  const validateTitle = (element) => {
-    element.addEventListener(`invalid`, function () {
-      if (element.validity.valueMissing) {
-        element.setCustomValidity(`Обязательное поле`);
-      } else {
-        element.setCustomValidity(``);
+  if (!isPriceValid(typePriceValue[window.card.roomType[dictionaryVar]], priceValue)) {
+    message = `Ожидалась цена выше ${typePriceValue[window.card.roomType[dictionaryVar]]}`;
+  }
+
+  if (priceElement.value > PriceValue.MORE) {
+    message = `Максимальная цена за жилье 100000 (1 миллион)`;
+  } else if (priceElement.value < PriceValue.ZERO) {
+    message = `Ожидалась положительная цена`;
+  }
+
+  priceElement.setCustomValidity(message);
+  filling.reportValidity();
+};
+
+const changePlaceholder = (typeElement, priceElement) => {
+  const placeholder = typePriceValue[window.card.roomType[typeElement.value.toUpperCase()]];
+  priceElement.placeholder = placeholder;
+};
+
+const syncTime = (firstTime, secondTime) => {
+  secondTime.value = firstTime.value;
+  filling.reportValidity();
+};
+
+const changeDisabled = (elements) => {
+  elements.forEach((filter) => {
+    if (window.map.getIsMapActive()) {
+      filter.removeAttribute(`disabled`);
+    } else {
+      filter.setAttribute(`disabled`, ``);
+    }
+  });
+};
+
+const addFormValidation = () => {
+  const roomElement = filling.querySelector(`#room_number`);
+  const capacityElement = filling.querySelector(`#capacity`);
+  const titleElement = filling.querySelector(`#title`);
+  const typeElement = filling.querySelector(`#type`);
+  const priceElement = filling.querySelector(`#price`);
+  const addressElement = filling.querySelector(`#address`);
+  addressElement.setAttribute(`readonly`, ``);
+  const timeInElement = filling.querySelector(`#timein`);
+  const timeOutElement = filling.querySelector(`#timeout`);
+  verifyTitle(titleElement);
+  changePlaceholder(typeElement, priceElement);
+  verifyRoom(roomElement, capacityElement);
+
+  filling.addEventListener(`change`, (evt) => {
+    switch (evt.target.id) {
+      case roomElement.id:
+        verifyRoom(roomElement, capacityElement);
+        break;
+      case priceElement.id:
+        verifyType(typeElement, priceElement);
+        break;
+      case typeElement.id:
+        verifyType(typeElement, priceElement);
+        changePlaceholder(typeElement, priceElement);
+        break;
+      case timeInElement.id:
+        syncTime(timeInElement, timeOutElement);
+        break;
+      case timeOutElement.id:
+        syncTime(timeOutElement, timeInElement);
+        break;
+    }
+  });
+};
+
+const showMessage = (message) => {
+  main.appendChild(message);
+};
+
+const removePopupOk = () => {
+  if (formMessageOk) {
+    const onDocumentPressingKey = (evt) => {
+      evt.preventDefault();
+      if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
+        main.removeChild(formMessageOk);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
-    });
-
-    element.addEventListener(`input`, function () {
-      const valueLength = element.value.length;
-
-      if (valueLength < FormValue.MIN_TITLE_LENGTH) {
-        element.setCustomValidity(`Ещё ${FormValue.MIN_TITLE_LENGTH - valueLength} симв.`);
-      } else if (valueLength > FormValue.MAX_TITLE_LENGTH) {
-        element.setCustomValidity(`Удалите лишние ${valueLength - FormValue.MAX_TITLE_LENGTH} симв.`);
-      } else {
-        element.setCustomValidity(``);
-      }
-    });
-    fillingForm.reportValidity();
-  };
-
-  const validateType = (typeElement, priceElement) => {
-    let message = ``;
-
-    const priceValue = parseInt(priceElement.value, 10);
-    let dictionaryVar = typeElement.value.toUpperCase();
-
-    const isPriceValid = (typeValuePrice, price) => {
-      return price >= typeValuePrice;
     };
 
-    if (!isPriceValid(typePriceValue[window.card.roomType[dictionaryVar]], priceValue)) {
-      message = `Ожидалась цена выше ${typePriceValue[window.card.roomType[dictionaryVar]]}`;
-    }
-
-    if (priceElement.value > PriceValue.MORE) {
-      message = `Максимальная цена за жилье 100000 (1 миллион)`;
-    } else if (priceElement.value < PriceValue.ZERO) {
-      message = `Ожидалась положительная цена`;
-    }
-
-    priceElement.setCustomValidity(message);
-    fillingForm.reportValidity();
-  };
-
-  const changePlaceholder = (typeElement, priceElement) => {
-    const placeholder = typePriceValue[window.card.roomType[typeElement.value.toUpperCase()]];
-    priceElement.placeholder = placeholder;
-  };
-
-  const syncTime = (firstTime, secondTime) => {
-    secondTime.value = firstTime.value;
-    fillingForm.reportValidity();
-  };
-
-  const changeDisabled = (elements) => {
-    elements.forEach((filter) => {
-      window.map.getIsMapActive() ? filter.removeAttribute(`disabled`) : filter.setAttribute(`disabled`, ``)
-    });
-  };
-
-  const addFormValidation = () => {
-    const roomElement = fillingForm.querySelector(`#room_number`);
-    const capacityElement = fillingForm.querySelector(`#capacity`);
-    const titleElement = fillingForm.querySelector(`#title`);
-    const typeElement = fillingForm.querySelector(`#type`);
-    const priceElement = fillingForm.querySelector(`#price`);
-    const addressElement = fillingForm.querySelector(`#address`);
-    addressElement.setAttribute(`readonly`, ``);
-    const timeInElement = fillingForm.querySelector(`#timein`);
-    const timeOutElement = fillingForm.querySelector(`#timeout`);
-    validateTitle(titleElement);
-    changePlaceholder(typeElement, priceElement);
-
-    fillingForm.addEventListener(`change`, function (e) {
-      switch (e.target.id) {
-        case roomElement.id:
-          validateRoom(roomElement, capacityElement);
-          break;
-        case priceElement.id:
-          validateType(typeElement, priceElement);
-          break;
-        case typeElement.id:
-          validateType(typeElement, priceElement);
-          changePlaceholder(typeElement, priceElement);
-          break;
-        case timeInElement.id:
-          syncTime(timeInElement, timeOutElement);
-          break;
-        case timeOutElement.id:
-          syncTime(timeOutElement, timeInElement);
-          break;
-      }
-    });
-  };
-
-  const showMessage = (message) => {
-    main.appendChild(message);
-  }
-
-  document.addEventListener(`keydown`, function (e) {
-    if (formMessageOk) {
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
+    const onDocumentClick = (evt) => {
+      evt.preventDefault();
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
+        document.removeEventListener(`click`, onDocumentClick);
       }
-    }
-  });
+    };
 
-  document.addEventListener(`keydown`, function (e) {
-    if (formMessageError) {
-      if (e.key === window.card.eventValue.KEY_ESCAPE || e.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
-        e.preventDefault();
+    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`click`, onDocumentClick);
+  }
+};
+
+const removePopupError = () => {
+  const errorButton = document.querySelector(`.error__button`);
+  if (formMessageError) {
+    const onDocumentPressingKey = (evt) => {
+      evt.preventDefault();
+      if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
-    }
-  });
+    };
 
-  if (errorButton) {
-    errorButton.addEventListener(`click`, function (e) {
-      e.preventDefault();
-      console.log(formMessageError);
-      fillingForm.removeChild(formMessageError);
-    });
+    const onDocumentClick = (evt) => {
+      evt.preventDefault();
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+        main.removeChild(formMessageError);
+        document.removeEventListener(`click`, onDocumentClick);
+      }
+    };
+
+    const onButtonClick = (evt) => {
+      evt.preventDefault();
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+        main.removeChild(formMessageError);
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
+      }
+    };
+
+    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`click`, onDocumentClick);
+    errorButton.addEventListener(`mousedown`, onButtonClick);
   }
+};
 
-  // document.addEventListener(`click`, function (e) {
-  //   if (formMessageError) {
-  //     e.preventDefault();
-  //     main.removeChild(formMessageError);
-  //   }
-  // });
+const onLoadError = (error) => {
+  setDefault();
+  showMessage(formMessageError);
+  removePopupError();
+  throw error;
+};
 
-  const onError = () => {
-    showMessage(formMessageError);
-  }
+const setDefault = () => {
+  window.pin.clear();
+  window.map.getStateDeactive();
+  window.card.hide();
+  filling.reset();
+  window.filter.mapFilters.reset();
+  // window.filter.housingFeatures.reset();
+  window.moving.setDefaultAddress();
+  window.photo.setDefault();
+};
 
-  const onSuccess = () => {
-    window.pin.close();
-    showMessage(formMessageOk);
-    window.map.deactivate();
-    fillingForm.reset();
-    window.moving.setDefaultAddress();
-  }
+const onLoadSuccess = () => {
+  setDefault();
+  showMessage(formMessageOk);
+  removePopupOk();
+};
 
-  fillingForm.addEventListener(`submit`, function (e) {
-    window.upload(new FormData(fillingForm), function () {
-      onSuccess();
-    }, onError());
-    e.preventDefault();
-  });
+filling.addEventListener(`submit`, (evt) => {
+  evt.preventDefault();
 
-  formReset.addEventListener(`click`, function () {
-    fillingForm.reset();
-    window.moving.setDefaultAddress();
-  });
+  window.upload(new FormData(filling), onLoadSuccess, onLoadError);
+});
 
-  window.form = {
-    setAddress,
-    fillingForm,
-    formFieldset,
-    addFormValidation,
-    changeDisabled
-  };
+formReset.addEventListener(`click`, () => {
+  setDefault();
+});
 
-})();
+window.form = {
+  setAddress,
+  filling,
+  changeMapActive,
+  formFieldset,
+  addFormValidation,
+  changeDisabled
+};

@@ -1,60 +1,55 @@
 "use strict";
 
-(function () {
+const URL_ADDRESS = ` https://21.javascript.pages.academy/keksobooking/data`;
+const TIMEOUT_STATUS = 10000;
 
-  const URL = ` https://21.javascript.pages.academy/keksobooking/data`;
+const StatusCode = {
+  OK: 200,
+  BAD: 400,
+  UNAUTHORIZED: 401,
+  NOT_FOUND: 404
+};
 
-  const TIMEOUT_STATUS = 10000;
+window.load = (onSuccess, onError) => {
+  const xhr = new XMLHttpRequest();
+  xhr.responseType = `json`;
 
-  const StatusCode = {
-    OK: 200,
-    BAD: 400,
-    UNAUTHORIZED: 401,
-    NOT_FOUND: 404
-  };
+  xhr.addEventListener(`load`, () => {
+    let error = ``;
 
-  window.load = (onSuccess, onError)  => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = `json`;
+    switch (xhr.status) {
+      case StatusCode.OK:
+        onSuccess(xhr.response);
+        break;
+      case StatusCode.BAD:
+        error = `Неверный запрос`;
+        break;
+      case StatusCode.UNAUTHORIZED:
+        error = `Пользователь не авторизован`;
+        break;
+      case StatusCode.NOT_FOUND:
+        error = `Ничего не найдено`;
+        break;
 
-    xhr.addEventListener(`load`, function () {
-      const error = ``;
+      default:
+        error = `Cтатус ответа: ${xhr.status} ${xhr.statusText}`;
+    }
 
-      switch (xhr.status) {
-        case StatusCode.OK:
-          onSuccess(xhr.response);
-          break;
-        case StatusCode.BAD:
-          error = `Неверный запрос`;
-          break;
-        case StatusCode.UNAUTHORIZED:
-          error = `Пользователь не авторизован`;
-          break;
-        case StatusCode.NOT_FOUND:
-          error = `Ничего не найдено`;
-          break;
+    if (error) {
+      onError(error);
+    }
+  });
 
-        default:
-          error = `Cтатус ответа: ${xhr.status} ${xhr.statusText}`;
-      }
+  xhr.addEventListener(`error`, () => {
+    onError(`Произошла ошибка соединения`);
+  });
 
-      if (error) {
-        onError(error);
-      }
-    });
+  xhr.addEventListener(`timeout`, () => {
+    onError(`Запрос не успел выполниться за ${xhr.timeout}мс`);
+  });
 
-    xhr.addEventListener(`error`, function () {
-      onError(`Произошла ошибка соединения`);
-    });
-    
-    xhr.addEventListener(`timeout`, function () {
-      onError(`Запрос не успел выполниться за ${xhr.timeout}мс`);
-    });
+  xhr.timeout = TIMEOUT_STATUS;
 
-    xhr.timeout = TIMEOUT_STATUS;
-
-    xhr.open(`GET`, URL);
-    xhr.send();
-  };
-
-})();
+  xhr.open(`GET`, URL_ADDRESS);
+  xhr.send();
+};

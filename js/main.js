@@ -1,8 +1,7 @@
 "use strict";
 
-(function () {
-  window.moving.init();
-  window.map.changeDisabledItems();
-  window.form.addFormValidation();
-  window.map.mapPinEvents();
-})();
+window.moving.init();
+window.filter.onChange();
+window.map.changeDisabledItems();
+window.form.addFormValidation();
+window.photo.onChange();
