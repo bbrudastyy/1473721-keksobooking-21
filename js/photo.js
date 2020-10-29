@@ -7,46 +7,62 @@ const previewPin = document.querySelector(`.ad-form-header__preview img`);
 const fileChooserAd = document.querySelector(`.ad-form__upload input[type=file]`);
 const previewAd = document.querySelector(`.ad-form__photo`);
 
-fileChooserPin.addEventListener(`change`, () => {
-  const file = fileChooserPin.files[0];
-  const fileName = file.name.toLowerCase();
+const onChange = () => {
+  fileChooserPin.addEventListener(`change`, () => {
+    const file = fileChooserPin.files[0];
+    const fileName = file.name.toLowerCase();
 
-  const matches = FILE_TYPES.some((it) => {
-    return fileName.endsWith(it);
-  });
-
-  if (matches) {
-    const reader = new FileReader();
-
-    reader.addEventListener(`load`, () => {
-      previewPin.src = reader.result;
+    const matches = FILE_TYPES.some((it) => {
+      return fileName.endsWith(it);
     });
 
-    reader.readAsDataURL(file);
-  }
-});
+    if (matches) {
+      const reader = new FileReader();
 
-fileChooserAd.addEventListener(`change`, () => {
-  const file = fileChooserAd.files[0];
-  const fileName = file.name.toLowerCase();
-  const fileImgage = document.createElement(`img`);
+      reader.addEventListener(`load`, () => {
+        previewPin.src = reader.result;
+      });
 
-  fileImgage.width = `70`;
-  fileImgage.height = `70`;
-  fileImgage.alt = `Фотография жилья`;
-  previewAd.appendChild(fileImgage);
-
-  const matches = FILE_TYPES.some((it) => {
-    return fileName.endsWith(it);
+      reader.readAsDataURL(file);
+    }
   });
 
-  if (matches) {
-    const reader = new FileReader();
+  fileChooserAd.addEventListener(`change`, () => {
+    const file = fileChooserAd.files[0];
+    const fileName = file.name.toLowerCase();
+    const fileImgage = document.createElement(`img`);
 
-    reader.addEventListener(`load`, () => {
-      fileImgage.src = reader.result;
+    fileImgage.width = `70`;
+    fileImgage.height = `70`;
+    fileImgage.alt = `Фотография жилья`;
+    previewAd.appendChild(fileImgage);
+
+    const matches = FILE_TYPES.some((it) => {
+      return fileName.endsWith(it);
     });
 
-    reader.readAsDataURL(file);
+    if (matches) {
+      const reader = new FileReader();
+
+      reader.addEventListener(`load`, () => {
+        fileImgage.src = reader.result;
+      });
+
+      reader.readAsDataURL(file);
+    }
+  });
+};
+
+const setDefault = () => {
+  const adPhoto = previewAd.querySelector(`img`);
+  previewPin.src = ``;
+
+  if (adPhoto) {
+    adPhoto.remove();
   }
-});
+};
+
+window.photo = {
+  onChange,
+  setDefault
+};

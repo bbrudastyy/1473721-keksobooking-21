@@ -65,6 +65,45 @@ window.load = (onSuccess, onError) => {
 })();
 
 (() => {
+/*!***************************!*\
+  !*** ./js/customError.js ***!
+  \***************************/
+/*! unknown exports (runtime-defined) */
+/*! runtime requirements:  */
+
+
+const body = document.querySelector(`body`);
+const blockError = document.createElement(`div`);
+const blockErrorText = document.createElement(`a`);
+
+const show = () => {
+
+  body.appendChild(blockError);
+
+  blockError.style.display = `block`;
+  blockError.style.width = `100%`;
+  blockError.style.height = `100%`;
+  blockError.style.position = `fixed`;
+  blockError.style.zIndex = `100`;
+  blockError.style.top = `0`;
+  blockError.style.left = `0`;
+  blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
+
+  blockErrorText.style.display = `inline-block`;
+  blockErrorText.style.width = `550px`;
+  blockErrorText.textContent = `Упс, произошла ошибка`;
+  blockErrorText.style.fontSize = `xx-large`;
+
+  blockError.appendChild(blockErrorText);
+};
+
+window.customError = {
+  show
+}
+
+})();
+
+(() => {
 /*!************************!*\
   !*** ./js/debounce.js ***!
   \************************/
@@ -125,7 +164,7 @@ let card = null;
 
 const addEventCloseCard = (cardElement) => {
   cardElement.querySelector(`.popup__close`).addEventListener(`click`, () => {
-    close();
+    hide();
   });
 
   document.addEventListener(`keydown`, (evt) => {
@@ -204,8 +243,7 @@ const getItemCard = (room) => {
 window.card = {
   roomType: RoomType,
   show,
-  close: hide,
-  card,
+  hide,
   eventValue: EventValue
 };
 
@@ -270,26 +308,18 @@ const Filter = {
 const changeFilter = (evt) => {
   switch (evt.target.name) {
     case FilterName.TYPE:
-      window.pin.show(getFiltredPins(pins));
-      break;
     case FilterName.GUESTS:
-      window.pin.show(getFiltredPins(pins));
-      break;
     case FilterName.ROOMS:
-      window.pin.show(getFiltredPins(pins));
-
-      break;
     case FilterName.PRICE:
-      window.pin.show(getFiltredPins(pins));
-
-      break;
     case FilterName.FEATURES:
       window.pin.show(getFiltredPins(pins));
       break;
   }
 };
 
-mapFilters.addEventListener(`change`, window.debounce(changeFilter));
+const onChange = () => {
+  mapFilters.addEventListener(`change`, window.debounce(changeFilter));
+};
 
 const getMatchPin = (pin, value, typeFilter) => {
 
@@ -312,17 +342,25 @@ const getMatchPin = (pin, value, typeFilter) => {
 };
 
 const checkMatchFeatures = (pin, features) => {
-  const a = features(housingFeatures);
 
-  if (a.length === 0) {
+  if (!features.length) {
     return true;
   }
 
-  if (pin.offer.features.some((r) => a.includes(r))) {
-    return true;
-  } else {
-    return false;
-  }
+  return features.every((feature) => pin.offer.features.includes(feature));
+};
+
+const getArrayFeatures = () => {
+  const features = housingFeatures.querySelectorAll(`input[type=checkbox]:checked`);
+  return Array.from(features).map((feature) => feature.value);
+};
+
+const getIsPinAvaliable = (pin) => {
+  return getMatchPin(pin, housingType.value, Filter.TYPE) &&
+    getMatchPin(pin, housingPrice.value, Filter.PRICE) &&
+    getMatchPin(pin, housingRooms.value, Filter.ROOMS) &&
+    getMatchPin(pin, housingGuests.value, Filter.GUESTS) &&
+    checkMatchFeatures(pin, getArrayFeatures());
 };
 
 const pressingFeatures = (filterFeatures) => {
@@ -334,25 +372,10 @@ const pressingFeatures = (filterFeatures) => {
   });
 };
 
-const getArrayFeatures = (filterFeatures) => {
-  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
-  let featuresArray = [];
-  features.forEach((feature) => {
-    if (feature.checked) {
-      featuresArray.push(feature.value);
-    }
-  });
-  return featuresArray;
-};
-
 pressingFeatures(housingFeatures);
 
-const getIsPinAvaliable = (pin) => {
-  return getMatchPin(pin, housingType.value, Filter.TYPE) && getMatchPin(pin, housingPrice.value, Filter.PRICE) && getMatchPin(pin, housingRooms.value, Filter.ROOMS) && getMatchPin(pin, housingGuests.value, Filter.GUESTS) && checkMatchFeatures(pin, getArrayFeatures);
-};
-
 const getFiltredPins = (pinsArray) => {
-  window.card.close();
+  window.card.hide();
   window.pin.clear();
 
   const result = [];
@@ -381,6 +404,7 @@ const onLoadSuccess = (data) => {
 };
 
 const onLoadError = (error) => {
+  window.customError.show();
   throw error;
 };
 
@@ -392,7 +416,8 @@ window.filter = {
   pins,
   loadData,
   mapFilters,
-  housingFeatures
+  housingFeatures,
+  onChange
 };
 
 })();
@@ -435,7 +460,7 @@ const changeDisabledItems = () => {
 const activate = () => {
   window.moving.updateAddress();
   map.classList.remove(`map--faded`);
-  window.form.fillingForm.classList.remove(`ad-form--disabled`);
+  window.form.changeMapActive();
   changeDisabledItems();
 };
 
@@ -452,7 +477,7 @@ const getStateActive = () => {
 const deactivate = () => {
   window.moving.updateAddress();
   map.classList.add(`map--faded`);
-  window.form.fillingForm.classList.add(`ad-form--disabled`);
+  window.form.changeMapActive();
   changeDisabledItems();
 };
 
@@ -621,15 +646,12 @@ window.upload = (data, onSuccess, onError) => {
 /*! runtime requirements:  */
 
 
-const fillingForm = document.querySelector(`.ad-form`);
-const formFieldset = fillingForm.querySelectorAll(`fieldset`);
-const formReset = fillingForm.querySelector(`.ad-form__reset`);
+const filling = document.querySelector(`.ad-form`);
+const formFieldset = filling.querySelectorAll(`fieldset`);
+const formReset = filling.querySelector(`.ad-form__reset`);
 const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
 const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
 const main = document.querySelector(`main`);
-const body = document.querySelector(`body`);
-const blockError = document.createElement(`div`);
-const blockErrorText = document.createElement(`a`);
 
 const FormValue = {
   MIN_TITLE_LENGTH: 30,
@@ -672,21 +694,13 @@ const roomCapacityValues = {
   [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
 };
 
-blockError.appendChild(blockErrorText);
+const changeMapActive = () => {
+  filling.classList.add(`ad-form--disabled`);
 
-blockError.style.display = `block`;
-blockError.style.width = `100%`;
-blockError.style.height = `100%`;
-blockError.style.position = `absolute`;
-blockError.style.zIndex = `100`;
-blockError.style.top = `0`;
-blockError.style.left = `0`;
-blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
-
-blockErrorText.style.display = `inline-block`;
-blockErrorText.style.width = `550px`;
-blockErrorText.textContent = `Упс, произошла ошибка`;
-blockErrorText.style.fontSize = `xx-large`;
+  if (window.map.getIsMapActive()) {
+    filling.classList.remove(`ad-form--disabled`);
+  }
+};
 
 const setAddress = (valueX, valueY) => {
   document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
@@ -707,7 +721,7 @@ const verifyRoom = (roomElement, capacityElement) => {
   }
 
   roomElement.setCustomValidity(message);
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const verifyTitle = (element) => {
@@ -730,7 +744,7 @@ const verifyTitle = (element) => {
       element.setCustomValidity(``);
     }
   });
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const verifyType = (typeElement, priceElement) => {
@@ -754,7 +768,7 @@ const verifyType = (typeElement, priceElement) => {
   }
 
   priceElement.setCustomValidity(message);
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const changePlaceholder = (typeElement, priceElement) => {
@@ -764,7 +778,7 @@ const changePlaceholder = (typeElement, priceElement) => {
 
 const syncTime = (firstTime, secondTime) => {
   secondTime.value = firstTime.value;
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const changeDisabled = (elements) => {
@@ -778,20 +792,20 @@ const changeDisabled = (elements) => {
 };
 
 const addFormValidation = () => {
-  const roomElement = fillingForm.querySelector(`#room_number`);
-  const capacityElement = fillingForm.querySelector(`#capacity`);
-  const titleElement = fillingForm.querySelector(`#title`);
-  const typeElement = fillingForm.querySelector(`#type`);
-  const priceElement = fillingForm.querySelector(`#price`);
-  const addressElement = fillingForm.querySelector(`#address`);
+  const roomElement = filling.querySelector(`#room_number`);
+  const capacityElement = filling.querySelector(`#capacity`);
+  const titleElement = filling.querySelector(`#title`);
+  const typeElement = filling.querySelector(`#type`);
+  const priceElement = filling.querySelector(`#price`);
+  const addressElement = filling.querySelector(`#address`);
   addressElement.setAttribute(`readonly`, ``);
-  const timeInElement = fillingForm.querySelector(`#timein`);
-  const timeOutElement = fillingForm.querySelector(`#timeout`);
+  const timeInElement = filling.querySelector(`#timein`);
+  const timeOutElement = filling.querySelector(`#timeout`);
   verifyTitle(titleElement);
   changePlaceholder(typeElement, priceElement);
   verifyRoom(roomElement, capacityElement);
 
-  fillingForm.addEventListener(`change`, (evt) => {
+  filling.addEventListener(`change`, (evt) => {
     switch (evt.target.id) {
       case roomElement.id:
         verifyRoom(roomElement, capacityElement);
@@ -819,58 +833,57 @@ const showMessage = (message) => {
 
 const removePopupOk = () => {
   if (formMessageOk) {
-    const removePopupForKey = (evt) => {
+    const onDocumentPressingKey = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`keydown`, removePopupForKey);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
     };
 
-    const removePopupForClick = (evt) => {
+    const onDocumentClick = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`click`, removePopupForClick);
+        document.removeEventListener(`click`, onDocumentClick);
       }
     };
 
-    document.addEventListener(`keydown`, removePopupForKey);
-    document.addEventListener(`click`, removePopupForClick);
+    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`click`, onDocumentClick);
   }
 };
 
 const removePopupError = () => {
   const errorButton = document.querySelector(`.error__button`);
   if (formMessageError) {
-    const removePopupForKey = (evt) => {
+    const onDocumentPressingKey = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, removePopupForKey);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
     };
 
-    const removePopupForClick = (evt) => {
+    const onDocumentClick = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`click`, removePopupForClick);
+        document.removeEventListener(`click`, onDocumentClick);
       }
     };
 
-    const removePopupForButtonClick = (evt) => {
+    const onButtonClick = (evt) => {
       evt.preventDefault();
-      // if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+      if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        errorButton.removeEventListener(`mousedown`, removePopupForButtonClick);
-      // }
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
+      }
     };
 
-    document.addEventListener(`keydown`, removePopupForKey);
-    document.addEventListener(`click`, removePopupForClick);
-    errorButton.addEventListener(`mousedown`, removePopupForButtonClick);
-
+    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`click`, onDocumentClick);
+    errorButton.addEventListener(`mousedown`, onButtonClick);
   }
 };
 
@@ -878,17 +891,19 @@ const onLoadError = (error) => {
   setDefault();
   showMessage(formMessageError);
   removePopupError();
-  body.appendChild(blockError);
+  showBlockError();
   throw error;
 };
 
 const setDefault = () => {
   window.pin.clear();
   window.map.getStateDeactive();
-  fillingForm.reset();
+  window.card.hide();
+  filling.reset();
   window.filter.mapFilters.reset();
-  window.filter.housingFeatures.reset();
+  // window.filter.housingFeatures.reset();
   window.moving.setDefaultAddress();
+  window.photo.setDefault();
 };
 
 const onLoadSuccess = () => {
@@ -897,10 +912,10 @@ const onLoadSuccess = () => {
   removePopupOk();
 };
 
-fillingForm.addEventListener(`submit`, (evt) => {
+filling.addEventListener(`submit`, (evt) => {
   evt.preventDefault();
 
-  window.upload(new FormData(fillingForm), onLoadSuccess, onLoadError);
+  window.upload(new FormData(filling), onLoadSuccess, onLoadError);
 });
 
 formReset.addEventListener(`click`, () => {
@@ -909,7 +924,8 @@ formReset.addEventListener(`click`, () => {
 
 window.form = {
   setAddress,
-  fillingForm,
+  filling,
+  changeMapActive,
   formFieldset,
   addFormValidation,
   changeDisabled
@@ -932,49 +948,65 @@ const previewPin = document.querySelector(`.ad-form-header__preview img`);
 const fileChooserAd = document.querySelector(`.ad-form__upload input[type=file]`);
 const previewAd = document.querySelector(`.ad-form__photo`);
 
-fileChooserPin.addEventListener(`change`, () => {
-  const file = fileChooserPin.files[0];
-  const fileName = file.name.toLowerCase();
+const onChange = () => {
+  fileChooserPin.addEventListener(`change`, () => {
+    const file = fileChooserPin.files[0];
+    const fileName = file.name.toLowerCase();
 
-  const matches = FILE_TYPES.some((it) => {
-    return fileName.endsWith(it);
-  });
-
-  if (matches) {
-    const reader = new FileReader();
-
-    reader.addEventListener(`load`, () => {
-      previewPin.src = reader.result;
+    const matches = FILE_TYPES.some((it) => {
+      return fileName.endsWith(it);
     });
 
-    reader.readAsDataURL(file);
-  }
-});
+    if (matches) {
+      const reader = new FileReader();
 
-fileChooserAd.addEventListener(`change`, () => {
-  const file = fileChooserAd.files[0];
-  const fileName = file.name.toLowerCase();
-  const fileImgage = document.createElement(`img`);
+      reader.addEventListener(`load`, () => {
+        previewPin.src = reader.result;
+      });
 
-  fileImgage.width = `70`;
-  fileImgage.height = `70`;
-  fileImgage.alt = `Фотография жилья`;
-  previewAd.appendChild(fileImgage);
-
-  const matches = FILE_TYPES.some((it) => {
-    return fileName.endsWith(it);
+      reader.readAsDataURL(file);
+    }
   });
 
-  if (matches) {
-    const reader = new FileReader();
+  fileChooserAd.addEventListener(`change`, () => {
+    const file = fileChooserAd.files[0];
+    const fileName = file.name.toLowerCase();
+    const fileImgage = document.createElement(`img`);
 
-    reader.addEventListener(`load`, () => {
-      fileImgage.src = reader.result;
+    fileImgage.width = `70`;
+    fileImgage.height = `70`;
+    fileImgage.alt = `Фотография жилья`;
+    previewAd.appendChild(fileImgage);
+
+    const matches = FILE_TYPES.some((it) => {
+      return fileName.endsWith(it);
     });
 
-    reader.readAsDataURL(file);
+    if (matches) {
+      const reader = new FileReader();
+
+      reader.addEventListener(`load`, () => {
+        fileImgage.src = reader.result;
+      });
+
+      reader.readAsDataURL(file);
+    }
+  });
+};
+
+const setDefault = () => {
+  const adPhoto = previewAd.querySelector(`img`);
+  previewPin.src = ``;
+
+  if (adPhoto) {
+    adPhoto.remove();
   }
-});
+};
+
+window.photo = {
+  onChange,
+  setDefault
+};
 
 })();
 
@@ -1010,6 +1042,10 @@ const addMainPinEvent = () => {
 
   mapPinMain.addEventListener(`mousedown`, (evt) => {
     evt.preventDefault();
+
+    if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+      window.map.getStateActive();
+    }
 
     let startCoords = {
       x: evt.clientX,
@@ -1050,13 +1086,6 @@ const addMainPinEvent = () => {
 
     document.addEventListener(`mousemove`, onMouseMove);
     document.addEventListener(`mouseup`, onMouseUp);
-  });
-
-  mapPinMain.addEventListener(`mouseup`, (evt) => {
-    evt.preventDefault();
-    if (evt.which === window.card.eventValue.MOUSE_LEFT) {
-      window.map.getStateActive();
-    }
   });
 
   mapPinMain.addEventListener(`keydown`, (evt) => {
@@ -1108,8 +1137,10 @@ window.moving = {
 
 
 window.moving.init();
+window.filter.onChange();
 window.map.changeDisabledItems();
 window.form.addFormValidation();
+window.photo.onChange();
 
 })();
 

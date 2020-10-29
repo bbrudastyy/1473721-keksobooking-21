@@ -30,7 +30,7 @@ const changeDisabledItems = () => {
 const activate = () => {
   window.moving.updateAddress();
   map.classList.remove(`map--faded`);
-  window.form.fillingForm.classList.remove(`ad-form--disabled`);
+  window.form.changeMapActive();
   changeDisabledItems();
 };
 
@@ -47,7 +47,7 @@ const getStateActive = () => {
 const deactivate = () => {
   window.moving.updateAddress();
   map.classList.add(`map--faded`);
-  window.form.fillingForm.classList.add(`ad-form--disabled`);
+  window.form.changeMapActive();
   changeDisabledItems();
 };
 

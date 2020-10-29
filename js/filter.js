@@ -50,26 +50,18 @@ const Filter = {
 const changeFilter = (evt) => {
   switch (evt.target.name) {
     case FilterName.TYPE:
-      window.pin.show(getFiltredPins(pins));
-      break;
     case FilterName.GUESTS:
-      window.pin.show(getFiltredPins(pins));
-      break;
     case FilterName.ROOMS:
-      window.pin.show(getFiltredPins(pins));
-
-      break;
     case FilterName.PRICE:
-      window.pin.show(getFiltredPins(pins));
-
-      break;
     case FilterName.FEATURES:
       window.pin.show(getFiltredPins(pins));
       break;
   }
 };
 
-mapFilters.addEventListener(`change`, window.debounce(changeFilter));
+const onChange = () => {
+  mapFilters.addEventListener(`change`, window.debounce(changeFilter));
+};
 
 const getMatchPin = (pin, value, typeFilter) => {
 
@@ -92,17 +84,25 @@ const getMatchPin = (pin, value, typeFilter) => {
 };
 
 const checkMatchFeatures = (pin, features) => {
-  const a = features(housingFeatures);
 
-  if (a.length === 0) {
+  if (!features.length) {
     return true;
   }
 
-  if (pin.offer.features.some((r) => a.includes(r))) {
-    return true;
-  } else {
-    return false;
-  }
+  return features.every((feature) => pin.offer.features.includes(feature));
+};
+
+const getArrayFeatures = () => {
+  const features = housingFeatures.querySelectorAll(`input[type=checkbox]:checked`);
+  return Array.from(features).map((feature) => feature.value);
+};
+
+const getIsPinAvaliable = (pin) => {
+  return getMatchPin(pin, housingType.value, Filter.TYPE) &&
+    getMatchPin(pin, housingPrice.value, Filter.PRICE) &&
+    getMatchPin(pin, housingRooms.value, Filter.ROOMS) &&
+    getMatchPin(pin, housingGuests.value, Filter.GUESTS) &&
+    checkMatchFeatures(pin, getArrayFeatures());
 };
 
 const pressingFeatures = (filterFeatures) => {
@@ -114,25 +114,10 @@ const pressingFeatures = (filterFeatures) => {
   });
 };
 
-const getArrayFeatures = (filterFeatures) => {
-  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
-  let featuresArray = [];
-  features.forEach((feature) => {
-    if (feature.checked) {
-      featuresArray.push(feature.value);
-    }
-  });
-  return featuresArray;
-};
-
 pressingFeatures(housingFeatures);
 
-const getIsPinAvaliable = (pin) => {
-  return getMatchPin(pin, housingType.value, Filter.TYPE) && getMatchPin(pin, housingPrice.value, Filter.PRICE) && getMatchPin(pin, housingRooms.value, Filter.ROOMS) && getMatchPin(pin, housingGuests.value, Filter.GUESTS) && checkMatchFeatures(pin, getArrayFeatures);
-};
-
 const getFiltredPins = (pinsArray) => {
-  window.card.close();
+  window.card.hide();
   window.pin.clear();
 
   const result = [];
@@ -161,6 +146,7 @@ const onLoadSuccess = (data) => {
 };
 
 const onLoadError = (error) => {
+  window.customError.show();
   throw error;
 };
 
@@ -172,5 +158,6 @@ window.filter = {
   pins,
   loadData,
   mapFilters,
-  housingFeatures
+  housingFeatures,
+  onChange
 };

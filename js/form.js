@@ -1,14 +1,11 @@
 "use strict";
 
-const fillingForm = document.querySelector(`.ad-form`);
-const formFieldset = fillingForm.querySelectorAll(`fieldset`);
-const formReset = fillingForm.querySelector(`.ad-form__reset`);
+const filling = document.querySelector(`.ad-form`);
+const formFieldset = filling.querySelectorAll(`fieldset`);
+const formReset = filling.querySelector(`.ad-form__reset`);
 const formMessageOk = document.querySelector(`#success`).content.querySelector(`.success`);
 const formMessageError = document.querySelector(`#error`).content.querySelector(`.error`);
 const main = document.querySelector(`main`);
-const body = document.querySelector(`body`);
-const blockError = document.createElement(`div`);
-const blockErrorText = document.createElement(`a`);
 
 const FormValue = {
   MIN_TITLE_LENGTH: 30,
@@ -51,21 +48,13 @@ const roomCapacityValues = {
   [RoomValue.HUNDRED]: [CapacityValue.NOT_GUESTS],
 };
 
-blockError.appendChild(blockErrorText);
+const changeMapActive = () => {
+  filling.classList.add(`ad-form--disabled`);
 
-blockError.style.display = `block`;
-blockError.style.width = `100%`;
-blockError.style.height = `100%`;
-blockError.style.position = `absolute`;
-blockError.style.zIndex = `100`;
-blockError.style.top = `0`;
-blockError.style.left = `0`;
-blockError.style.backgroundColor = `rgb(173, 168, 168, 0.5)`;
-
-blockErrorText.style.display = `inline-block`;
-blockErrorText.style.width = `550px`;
-blockErrorText.textContent = `Упс, произошла ошибка`;
-blockErrorText.style.fontSize = `xx-large`;
+  if (window.map.getIsMapActive()) {
+    filling.classList.remove(`ad-form--disabled`);
+  }
+};
 
 const setAddress = (valueX, valueY) => {
   document.querySelector(`#address`).value = `${Math.floor(valueX)}, ${Math.floor(valueY)}`;
@@ -86,7 +75,7 @@ const verifyRoom = (roomElement, capacityElement) => {
   }
 
   roomElement.setCustomValidity(message);
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const verifyTitle = (element) => {
@@ -109,7 +98,7 @@ const verifyTitle = (element) => {
       element.setCustomValidity(``);
     }
   });
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const verifyType = (typeElement, priceElement) => {
@@ -133,7 +122,7 @@ const verifyType = (typeElement, priceElement) => {
   }
 
   priceElement.setCustomValidity(message);
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const changePlaceholder = (typeElement, priceElement) => {
@@ -143,7 +132,7 @@ const changePlaceholder = (typeElement, priceElement) => {
 
 const syncTime = (firstTime, secondTime) => {
   secondTime.value = firstTime.value;
-  fillingForm.reportValidity();
+  filling.reportValidity();
 };
 
 const changeDisabled = (elements) => {
@@ -157,20 +146,20 @@ const changeDisabled = (elements) => {
 };
 
 const addFormValidation = () => {
-  const roomElement = fillingForm.querySelector(`#room_number`);
-  const capacityElement = fillingForm.querySelector(`#capacity`);
-  const titleElement = fillingForm.querySelector(`#title`);
-  const typeElement = fillingForm.querySelector(`#type`);
-  const priceElement = fillingForm.querySelector(`#price`);
-  const addressElement = fillingForm.querySelector(`#address`);
+  const roomElement = filling.querySelector(`#room_number`);
+  const capacityElement = filling.querySelector(`#capacity`);
+  const titleElement = filling.querySelector(`#title`);
+  const typeElement = filling.querySelector(`#type`);
+  const priceElement = filling.querySelector(`#price`);
+  const addressElement = filling.querySelector(`#address`);
   addressElement.setAttribute(`readonly`, ``);
-  const timeInElement = fillingForm.querySelector(`#timein`);
-  const timeOutElement = fillingForm.querySelector(`#timeout`);
+  const timeInElement = filling.querySelector(`#timein`);
+  const timeOutElement = filling.querySelector(`#timeout`);
   verifyTitle(titleElement);
   changePlaceholder(typeElement, priceElement);
   verifyRoom(roomElement, capacityElement);
 
-  fillingForm.addEventListener(`change`, (evt) => {
+  filling.addEventListener(`change`, (evt) => {
     switch (evt.target.id) {
       case roomElement.id:
         verifyRoom(roomElement, capacityElement);
@@ -198,57 +187,57 @@ const showMessage = (message) => {
 
 const removePopupOk = () => {
   if (formMessageOk) {
-    const removePopupForKey = (evt) => {
+    const onDocumentPressingKey = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`keydown`, removePopupForKey);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
     };
 
-    const removePopupForClick = (evt) => {
+    const onDocumentClick = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`click`, removePopupForClick);
+        document.removeEventListener(`click`, onDocumentClick);
       }
     };
 
-    document.addEventListener(`keydown`, removePopupForKey);
-    document.addEventListener(`click`, removePopupForClick);
+    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`click`, onDocumentClick);
   }
 };
 
 const removePopupError = () => {
   const errorButton = document.querySelector(`.error__button`);
   if (formMessageError) {
-    const removePopupForKey = (evt) => {
+    const onDocumentPressingKey = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, removePopupForKey);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
     };
 
-    const removePopupForClick = (evt) => {
+    const onDocumentClick = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`click`, removePopupForClick);
+        document.removeEventListener(`click`, onDocumentClick);
       }
     };
 
-    const removePopupForButtonClick = (evt) => {
+    const onButtonClick = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        errorButton.removeEventListener(`mousedown`, removePopupForButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
 
-    document.addEventListener(`keydown`, removePopupForKey);
-    document.addEventListener(`click`, removePopupForClick);
-    errorButton.addEventListener(`mousedown`, removePopupForButtonClick);
+    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`click`, onDocumentClick);
+    errorButton.addEventListener(`mousedown`, onButtonClick);
   }
 };
 
@@ -256,17 +245,18 @@ const onLoadError = (error) => {
   setDefault();
   showMessage(formMessageError);
   removePopupError();
-  body.appendChild(blockError);
   throw error;
 };
 
 const setDefault = () => {
   window.pin.clear();
   window.map.getStateDeactive();
-  fillingForm.reset();
+  window.card.hide();
+  filling.reset();
   window.filter.mapFilters.reset();
-  window.filter.housingFeatures.reset();
+  // window.filter.housingFeatures.reset();
   window.moving.setDefaultAddress();
+  window.photo.setDefault();
 };
 
 const onLoadSuccess = () => {
@@ -275,10 +265,10 @@ const onLoadSuccess = () => {
   removePopupOk();
 };
 
-fillingForm.addEventListener(`submit`, (evt) => {
+filling.addEventListener(`submit`, (evt) => {
   evt.preventDefault();
 
-  window.upload(new FormData(fillingForm), onLoadSuccess, onLoadError);
+  window.upload(new FormData(filling), onLoadSuccess, onLoadError);
 });
 
 formReset.addEventListener(`click`, () => {
@@ -287,7 +277,8 @@ formReset.addEventListener(`click`, () => {
 
 window.form = {
   setAddress,
-  fillingForm,
+  filling,
+  changeMapActive,
   formFieldset,
   addFormValidation,
   changeDisabled

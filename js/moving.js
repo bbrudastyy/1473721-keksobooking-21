@@ -25,6 +25,10 @@ const addMainPinEvent = () => {
   mapPinMain.addEventListener(`mousedown`, (evt) => {
     evt.preventDefault();
 
+    if (evt.which === window.card.eventValue.MOUSE_LEFT) {
+      window.map.getStateActive();
+    }
+
     let startCoords = {
       x: evt.clientX,
       y: evt.clientY
@@ -64,13 +68,6 @@ const addMainPinEvent = () => {
 
     document.addEventListener(`mousemove`, onMouseMove);
     document.addEventListener(`mouseup`, onMouseUp);
-  });
-
-  mapPinMain.addEventListener(`mouseup`, (evt) => {
-    evt.preventDefault();
-    if (evt.which === window.card.eventValue.MOUSE_LEFT) {
-      window.map.getStateActive();
-    }
   });
 
   mapPinMain.addEventListener(`keydown`, (evt) => {

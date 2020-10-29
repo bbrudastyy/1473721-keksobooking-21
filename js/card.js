@@ -28,7 +28,7 @@ let card = null;
 
 const addEventCloseCard = (cardElement) => {
   cardElement.querySelector(`.popup__close`).addEventListener(`click`, () => {
-    close();
+    hide();
   });
 
   document.addEventListener(`keydown`, (evt) => {
@@ -107,8 +107,7 @@ const getItemCard = (room) => {
 window.card = {
   roomType: RoomType,
   show,
-  close: hide,
-  card,
+  hide,
   eventValue: EventValue
 };
 
