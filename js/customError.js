@@ -25,6 +25,18 @@ const show = () => {
   blockError.appendChild(blockErrorText);
 };
 
+const hide = () => {
+  document.addEventListener(`keydown`, (evt) => {
+    if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
+      if (blockError) {
+        evt.preventDefault();
+        blockError.remove();
+      }
+    }
+  });
+};
+
 window.customError = {
-  show
+  show,
+  hide
 };

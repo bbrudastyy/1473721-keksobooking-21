@@ -97,9 +97,21 @@ const show = () => {
   blockError.appendChild(blockErrorText);
 };
 
+const hide = () => {
+  document.addEventListener(`keydown`, (evt) => {
+    if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
+      if (blockError) {
+        evt.preventDefault();
+        blockError.remove();
+      }
+    }
+  });
+};
+
 window.customError = {
-  show
-}
+  show,
+  hide
+};
 
 })();
 
@@ -267,6 +279,7 @@ const housingPrice = mapFilters.querySelector(`#housing-price`);
 const housingRooms = mapFilters.querySelector(`#housing-rooms`);
 const housingGuests = mapFilters.querySelector(`#housing-guests`);
 const housingFeatures = mapFilters.querySelector(`#housing-features`);
+const featuresContent = housingFeatures.cloneNode(true);
 
 let pins = [];
 
@@ -417,7 +430,8 @@ window.filter = {
   loadData,
   mapFilters,
   housingFeatures,
-  onChange
+  featuresContent,
+  onChange,
 };
 
 })();
@@ -810,6 +824,9 @@ const addFormValidation = () => {
       case roomElement.id:
         verifyRoom(roomElement, capacityElement);
         break;
+      case capacityElement.id:
+        verifyRoom(roomElement, capacityElement);
+        break;
       case priceElement.id:
         verifyType(typeElement, priceElement);
         break;
@@ -838,6 +855,7 @@ const removePopupOk = () => {
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
         document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`click`, onDocumentClick);
       }
     };
 
@@ -846,6 +864,7 @@ const removePopupOk = () => {
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
         document.removeEventListener(`click`, onDocumentClick);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
     };
 
@@ -862,6 +881,8 @@ const removePopupError = () => {
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
         document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`click`, onDocumentClick);
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
 
@@ -869,7 +890,9 @@ const removePopupError = () => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
         document.removeEventListener(`click`, onDocumentClick);
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
 
@@ -877,6 +900,8 @@ const removePopupError = () => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`click`, onDocumentClick);
         errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
@@ -888,11 +913,14 @@ const removePopupError = () => {
 };
 
 const onLoadError = (error) => {
-  setDefault();
   showMessage(formMessageError);
   removePopupError();
-  showBlockError();
   throw error;
+};
+
+const setDefaultFeatures = () => {
+  window.filter.housingFeatures.remove();
+  window.filter.mapFilters.appendChild(window.filter.featuresContent);
 };
 
 const setDefault = () => {
@@ -900,8 +928,10 @@ const setDefault = () => {
   window.map.getStateDeactive();
   window.card.hide();
   filling.reset();
+  setDefaultFeatures();
+
   window.filter.mapFilters.reset();
-  // window.filter.housingFeatures.reset();
+
   window.moving.setDefaultAddress();
   window.photo.setDefault();
 };
@@ -942,6 +972,7 @@ window.form = {
 
 
 const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
+const DEFAULT_SRC = `img/muffin-grey.svg`;
 
 const fileChooserPin = document.querySelector(`.ad-form__field input[type=file]`);
 const previewPin = document.querySelector(`.ad-form-header__preview img`);
@@ -995,12 +1026,9 @@ const onChange = () => {
 };
 
 const setDefault = () => {
-  const adPhoto = previewAd.querySelector(`img`);
-  previewPin.src = ``;
-
-  if (adPhoto) {
-    adPhoto.remove();
-  }
+  previewPin.src = `${DEFAULT_SRC}`;
+  previewPin.alt = ``;
+  previewAd.innerHTML = ``;
 };
 
 window.photo = {
@@ -1141,6 +1169,7 @@ window.filter.onChange();
 window.map.changeDisabledItems();
 window.form.addFormValidation();
 window.photo.onChange();
+window.customError.hide();
 
 })();
 
