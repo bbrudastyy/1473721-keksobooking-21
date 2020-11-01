@@ -1,6 +1,7 @@
 "use strict";
 
 const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
+const DEFAULT_SRC = `img/muffin-grey.svg`;
 
 const fileChooserPin = document.querySelector(`.ad-form__field input[type=file]`);
 const previewPin = document.querySelector(`.ad-form-header__preview img`);
@@ -54,12 +55,9 @@ const onChange = () => {
 };
 
 const setDefault = () => {
-  const adPhoto = previewAd.querySelector(`img`);
-  previewPin.src = ``;
-
-  if (adPhoto) {
-    adPhoto.remove();
-  }
+  previewPin.src = `${DEFAULT_SRC}`;
+  previewPin.alt = ``;
+  previewAd.innerHTML = ``;
 };
 
 window.photo = {

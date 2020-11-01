@@ -164,6 +164,9 @@ const addFormValidation = () => {
       case roomElement.id:
         verifyRoom(roomElement, capacityElement);
         break;
+      case capacityElement.id:
+        verifyRoom(roomElement, capacityElement);
+        break;
       case priceElement.id:
         verifyType(typeElement, priceElement);
         break;
@@ -192,6 +195,7 @@ const removePopupOk = () => {
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
         document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`click`, onDocumentClick);
       }
     };
 
@@ -200,6 +204,7 @@ const removePopupOk = () => {
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
         document.removeEventListener(`click`, onDocumentClick);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
       }
     };
 
@@ -216,6 +221,8 @@ const removePopupError = () => {
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
         document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`click`, onDocumentClick);
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
 
@@ -223,7 +230,9 @@ const removePopupError = () => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
         document.removeEventListener(`click`, onDocumentClick);
+        errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
 
@@ -231,6 +240,8 @@ const removePopupError = () => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
+        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`click`, onDocumentClick);
         errorButton.removeEventListener(`mousedown`, onButtonClick);
       }
     };
@@ -242,10 +253,14 @@ const removePopupError = () => {
 };
 
 const onLoadError = (error) => {
-  setDefault();
   showMessage(formMessageError);
   removePopupError();
   throw error;
+};
+
+const setDefaultFeatures = () => {
+  window.filter.housingFeatures.remove();
+  window.filter.mapFilters.appendChild(window.filter.featuresContent);
 };
 
 const setDefault = () => {
@@ -253,8 +268,10 @@ const setDefault = () => {
   window.map.getStateDeactive();
   window.card.hide();
   filling.reset();
+  setDefaultFeatures();
+
   window.filter.mapFilters.reset();
-  // window.filter.housingFeatures.reset();
+
   window.moving.setDefaultAddress();
   window.photo.setDefault();
 };
