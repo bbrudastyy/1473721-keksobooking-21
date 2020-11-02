@@ -135,8 +135,8 @@ const syncTime = (firstTime, secondTime) => {
   filling.reportValidity();
 };
 
-const changeDisabled = (elements) => {
-  elements.forEach((filter) => {
+const changeDisabled = () => {
+  formFieldset.forEach((filter) => {
     if (window.map.getIsMapActive()) {
       filter.removeAttribute(`disabled`);
     } else {
@@ -190,11 +190,11 @@ const showMessage = (message) => {
 
 const removePopupOk = () => {
   if (formMessageOk) {
-    const onDocumentPressingKey = (evt) => {
+    const onDocumentKeyDown = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
       }
     };
@@ -204,11 +204,11 @@ const removePopupOk = () => {
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
         document.removeEventListener(`click`, onDocumentClick);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
       }
     };
 
-    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`keydown`, onDocumentKeyDown);
     document.addEventListener(`click`, onDocumentClick);
   }
 };
@@ -216,13 +216,13 @@ const removePopupOk = () => {
 const removePopupError = () => {
   const errorButton = document.querySelector(`.error__button`);
   if (formMessageError) {
-    const onDocumentPressingKey = (evt) => {
+    const onDocumentKeyDown = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
-        errorButton.removeEventListener(`mousedown`, onButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonMouseDown);
       }
     };
 
@@ -230,25 +230,25 @@ const removePopupError = () => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
-        errorButton.removeEventListener(`mousedown`, onButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonMouseDown);
       }
     };
 
-    const onButtonClick = (evt) => {
+    const onButtonMouseDown = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
-        errorButton.removeEventListener(`mousedown`, onButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonMouseDown);
       }
     };
 
-    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`keydown`, onDocumentKeyDown);
     document.addEventListener(`click`, onDocumentClick);
-    errorButton.addEventListener(`mousedown`, onButtonClick);
+    errorButton.addEventListener(`mousedown`, onButtonMouseDown);
   }
 };
 
@@ -269,9 +269,8 @@ const setDefault = () => {
   window.card.hide();
   filling.reset();
   setDefaultFeatures();
-
+  window.form.addFormValidation();
   window.filter.mapFilters.reset();
-
   window.moving.setDefaultAddress();
   window.photo.setDefault();
 };

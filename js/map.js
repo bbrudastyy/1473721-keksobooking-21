@@ -24,7 +24,7 @@ const changeDisabled = (elements) => {
 const changeDisabledItems = () => {
   changeDisabled(filters);
   changeDisabled([filterFeatures]);
-  window.form.changeDisabled(window.form.formFieldset);
+  window.form.changeDisabled();
 };
 
 const activate = () => {
@@ -61,7 +61,6 @@ const getStateDeactive = () => {
 };
 
 window.map = {
-  map,
   changeDisabledItems,
   getIsMapActive,
   getStateActive,
