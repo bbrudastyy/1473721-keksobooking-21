@@ -258,19 +258,13 @@ const onLoadError = (error) => {
   throw error;
 };
 
-const setDefaultFeatures = () => {
-  window.filter.housingFeatures.remove();
-  window.filter.mapFilters.appendChild(window.filter.featuresContent);
-};
-
 const setDefault = () => {
   window.pin.clear();
   window.map.getStateDeactive();
   window.card.hide();
   filling.reset();
-  setDefaultFeatures();
   window.form.addFormValidation();
-  window.filter.mapFilters.reset();
+  window.filter.setDefault();
   window.moving.setDefaultAddress();
   window.photo.setDefault();
 };
@@ -293,7 +287,6 @@ formReset.addEventListener(`click`, () => {
 
 window.form = {
   setAddress,
-  filling,
   changeMapActive,
   formFieldset,
   addFormValidation,

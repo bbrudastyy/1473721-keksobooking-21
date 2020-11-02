@@ -408,17 +408,6 @@ const getIsPinAvaliable = (pin) => {
     checkMatchFeatures(pin, getArrayFeatures());
 };
 
-const pressingFeatures = (filterFeatures) => {
-  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
-  features.forEach((feature) => {
-    feature.addEventListener(`click`, () => {
-      feature.toggleAttribute(`checked`);
-    });
-  });
-};
-
-pressingFeatures(housingFeatures);
-
 const getFiltredPins = (pinsArray) => {
   window.card.hide();
   window.pin.clear();
@@ -443,6 +432,10 @@ const getFiltredPins = (pinsArray) => {
   return result;
 };
 
+const setDefault = () => {
+  mapFilters.reset();
+};
+
 const onLoadSuccess = (data) => {
   pins = data.slice();
   window.pin.show(getFiltredPins(pins));
@@ -458,12 +451,12 @@ const loadData = () => {
 };
 
 window.filter = {
-  pins,
   loadData,
   mapFilters,
   housingFeatures,
   featuresContent,
   onChange,
+  setDefault
 };
 
 })();
@@ -960,19 +953,13 @@ const onLoadError = (error) => {
   throw error;
 };
 
-const setDefaultFeatures = () => {
-  window.filter.housingFeatures.remove();
-  window.filter.mapFilters.appendChild(window.filter.featuresContent);
-};
-
 const setDefault = () => {
   window.pin.clear();
   window.map.getStateDeactive();
   window.card.hide();
   filling.reset();
-  setDefaultFeatures();
   window.form.addFormValidation();
-  window.filter.mapFilters.reset();
+  window.filter.setDefault();
   window.moving.setDefaultAddress();
   window.photo.setDefault();
 };
@@ -995,7 +982,6 @@ formReset.addEventListener(`click`, () => {
 
 window.form = {
   setAddress,
-  filling,
   changeMapActive,
   formFieldset,
   addFormValidation,
