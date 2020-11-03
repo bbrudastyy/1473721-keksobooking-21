@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const filling = document.querySelector(`.ad-form`);
 const formFieldset = filling.querySelectorAll(`fieldset`);
@@ -278,7 +278,7 @@ const onLoadSuccess = () => {
 filling.addEventListener(`submit`, (evt) => {
   evt.preventDefault();
 
-  window.upload(new FormData(filling), onLoadSuccess, onLoadError);
+  window.server.interact(window.server.XhrMethod.POST, onLoadSuccess, onLoadError, new FormData(filling));
 });
 
 formReset.addEventListener(`click`, () => {

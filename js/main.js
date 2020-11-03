@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 window.moving.init();
 window.filter.onChange();

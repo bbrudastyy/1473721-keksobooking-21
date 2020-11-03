@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup`);
 const cardPhotoTemplate = document.querySelector(`#card`).content.querySelector(`.popup__photo`);

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const mapPinMain = document.querySelector(`.map__pin--main`);
 

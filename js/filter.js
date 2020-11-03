@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const MAX_LENGTH = 5;
 const ANY_VALUE = `any`;
@@ -144,7 +144,7 @@ const onLoadError = (error) => {
 };
 
 const loadData = () => {
-  window.load(onLoadSuccess, onLoadError);
+  window.server.interact(window.server.XhrMethod.GET, onLoadSuccess, onLoadError);
 };
 
 window.filter = {

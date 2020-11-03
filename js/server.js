@@ -1,6 +1,5 @@
-"use strict";
+'use strict';
 
-const URL_ADDRESS = ` https://21.javascript.pages.academy/keksobooking/data`;
 const TIMEOUT_STATUS = 10000;
 
 const StatusCode = {
@@ -10,7 +9,17 @@ const StatusCode = {
   NOT_FOUND: 404
 };
 
-window.load = (onSuccess, onError) => {
+const XhrMethod = {
+  GET: `GET`,
+  POST: `POST`
+};
+
+const interact = (method, onSuccess, onError, data) => {
+  let urlAddress = `https://21.javascript.pages.academy/keksobooking`;
+
+  if (method === XhrMethod.GET) {
+    urlAddress = `https://21.javascript.pages.academy/keksobooking/data`;
+  }
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
@@ -50,6 +59,11 @@ window.load = (onSuccess, onError) => {
 
   xhr.timeout = TIMEOUT_STATUS;
 
-  xhr.open(`GET`, URL_ADDRESS);
-  xhr.send();
+  xhr.open(`${method}`, urlAddress);
+  xhr.send(data);
+};
+
+window.server =  {
+  interact,
+  XhrMethod
 };

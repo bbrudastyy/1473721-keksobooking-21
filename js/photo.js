@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
 const DEFAULT_SRC = `img/muffin-grey.svg`;
@@ -7,6 +7,11 @@ const fileChooserPin = document.querySelector(`.ad-form__field input[type=file]`
 const previewPin = document.querySelector(`.ad-form-header__preview img`);
 const fileChooserAd = document.querySelector(`.ad-form__upload input[type=file]`);
 const previewAd = document.querySelector(`.ad-form__photo`);
+
+const ImageSize = {
+  WIDTH: 70,
+  HEIGHT: 70
+};
 
 const onChange = () => {
   fileChooserPin.addEventListener(`change`, () => {
@@ -33,8 +38,8 @@ const onChange = () => {
     const fileName = file.name.toLowerCase();
     const fileImgage = document.createElement(`img`);
 
-    fileImgage.width = `70`;
-    fileImgage.height = `70`;
+    fileImgage.width = `${ImageSize.WIDTH}`;
+    fileImgage.height = `${ImageSize.HEIGHT}`;
     fileImgage.alt = `Фотография жилья`;
     previewAd.appendChild(fileImgage);
 

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const body = document.querySelector(`body`);
 const blockError = document.createElement(`div`);
