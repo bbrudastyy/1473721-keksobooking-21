@@ -150,9 +150,6 @@ const loadData = () => {
 
 window.filter = {
   loadData,
-  mapFilters,
-  housingFeatures,
-  featuresContent,
   onChange,
   setDefault
 };

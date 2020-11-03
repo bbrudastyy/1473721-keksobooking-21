@@ -288,7 +288,6 @@ formReset.addEventListener(`click`, () => {
 window.form = {
   setAddress,
   changeMapActive,
-  formFieldset,
   addFormValidation,
   changeDisabled
 };
