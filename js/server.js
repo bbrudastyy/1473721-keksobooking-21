@@ -20,6 +20,7 @@ const interact = (method, onSuccess, onError, data) => {
   if (method === XhrMethod.GET) {
     urlAddress = `https://21.javascript.pages.academy/keksobooking/data`;
   }
+
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
@@ -63,7 +64,7 @@ const interact = (method, onSuccess, onError, data) => {
   xhr.send(data);
 };
 
-window.server =  {
+window.server = {
   interact,
   XhrMethod
 };
