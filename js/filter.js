@@ -9,7 +9,6 @@ const housingPrice = mapFilters.querySelector(`#housing-price`);
 const housingRooms = mapFilters.querySelector(`#housing-rooms`);
 const housingGuests = mapFilters.querySelector(`#housing-guests`);
 const housingFeatures = mapFilters.querySelector(`#housing-features`);
-const featuresContent = housingFeatures.cloneNode(true);
 
 let pins = [];
 
