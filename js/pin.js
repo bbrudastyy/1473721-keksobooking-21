@@ -21,10 +21,22 @@ const addPinEvent = (room, pinElement) => {
 };
 
 const getElement = (room) => {
+  const {
+    location: {
+      x,
+      y
+    },
+    author: {
+      avatar
+    },
+    offer: {
+      title
+    }
+  } = room;
   const pinElement = pinTemplate.cloneNode(true);
-  pinElement.setAttribute(`style`, `left: ${room.location.x - PinSize.PIN_WIDTH / 2}px; top: ${room.location.y - PinSize.PIN_HEIGHT}px`);
-  pinElement.querySelector(`img`).src = room.author.avatar;
-  pinElement.querySelector(`img`).alt = room.offer.title;
+  pinElement.setAttribute(`style`, `left: ${x - PinSize.PIN_WIDTH / 2}px; top: ${y - PinSize.PIN_HEIGHT}px`);
+  pinElement.querySelector(`img`).src = avatar;
+  pinElement.querySelector(`img`).alt = title;
 
   return pinElement;
 };
@@ -60,6 +72,5 @@ const clear = () => {
 
 window.pin = {
   show,
-  clear,
-  pinContainer
+  clear
 };

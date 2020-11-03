@@ -106,17 +106,6 @@ const getIsPinAvaliable = (pin) => {
     checkMatchFeatures(pin, getArrayFeatures());
 };
 
-const pressingFeatures = (filterFeatures) => {
-  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
-  features.forEach((feature) => {
-    feature.addEventListener(`click`, () => {
-      feature.toggleAttribute(`checked`);
-    });
-  });
-};
-
-pressingFeatures(housingFeatures);
-
 const getFiltredPins = (pinsArray) => {
   window.card.hide();
   window.pin.clear();
@@ -141,6 +130,10 @@ const getFiltredPins = (pinsArray) => {
   return result;
 };
 
+const setDefault = () => {
+  mapFilters.reset();
+};
+
 const onLoadSuccess = (data) => {
   pins = data.slice();
   window.pin.show(getFiltredPins(pins));
@@ -156,10 +149,10 @@ const loadData = () => {
 };
 
 window.filter = {
-  pins,
   loadData,
   mapFilters,
   housingFeatures,
   featuresContent,
   onChange,
+  setDefault
 };

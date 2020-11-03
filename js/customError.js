@@ -23,20 +23,24 @@ const show = () => {
   blockErrorText.style.fontSize = `xx-large`;
 
   blockError.appendChild(blockErrorText);
+
+  hide();
 };
 
 const hide = () => {
-  document.addEventListener(`keydown`, (evt) => {
+  const onDocumentClick = (evt) => {
     if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
       if (blockError) {
         evt.preventDefault();
         blockError.remove();
+        document.removeEventListener(`keydown`, onDocumentClick);
       }
     }
-  });
+  };
+
+  document.addEventListener(`keydown`, onDocumentClick);
 };
 
 window.customError = {
-  show,
-  hide
+  show
 };

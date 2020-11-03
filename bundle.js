@@ -95,22 +95,26 @@ const show = () => {
   blockErrorText.style.fontSize = `xx-large`;
 
   blockError.appendChild(blockErrorText);
+
+  hide();
 };
 
 const hide = () => {
-  document.addEventListener(`keydown`, (evt) => {
+  const onDocumentClick = (evt) => {
     if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
       if (blockError) {
         evt.preventDefault();
         blockError.remove();
+        document.removeEventListener(`keydown`, onDocumentClick);
       }
     }
-  });
+  };
+
+  document.addEventListener(`keydown`, onDocumentClick);
 };
 
 window.customError = {
-  show,
-  hide
+  show
 };
 
 })();
@@ -175,16 +179,25 @@ const EventValue = {
 let card = null;
 
 const addEventCloseCard = (cardElement) => {
-  cardElement.querySelector(`.popup__close`).addEventListener(`click`, () => {
-    hide();
-  });
 
-  document.addEventListener(`keydown`, (evt) => {
+  const onCardElementClick = (evt) => {
+    evt.preventDefault();
+    hide();
+    cardElement.querySelector(`.popup__close`).removeEventListener(`click`, onCardElementClick);
+    document.removeEventListener(`keydown`, onDocumentKeyDown);
+  };
+
+  const onDocumentKeyDown = (evt) => {
     if (evt.key === EventValue.KEY_ESCAPE || evt.key === EventValue.KEY_ESCAPE_ABBREVIATED) {
       evt.preventDefault();
       hide();
+      document.removeEventListener(`keydown`, onDocumentKeyDown);
+      cardElement.querySelector(`.popup__close`).removeEventListener(`click`, onCardElementClick);
     }
-  });
+  };
+
+  cardElement.querySelector(`.popup__close`).addEventListener(`click`, onCardElementClick);
+  document.addEventListener(`keydown`, onDocumentKeyDown);
 };
 
 const hide = () => {
@@ -237,17 +250,36 @@ const renderPhotos = (container, photos) => {
 
 const getItemCard = (room) => {
 
+  const {
+    author: {
+      avatar
+    },
+    offer: {
+      title,
+      address,
+      price,
+      type,
+      rooms,
+      guests,
+      checkin,
+      checkout,
+      description,
+      features,
+      photos
+    },
+  } = room;
+
   const cardElement = cardTemplate.cloneNode(true);
-  cardElement.querySelector(`.popup__avatar`).src = room.author.avatar;
-  cardElement.querySelector(`.popup__title`).textContent = room.offer.title;
-  cardElement.querySelector(`.popup__text--address`).textContent = room.offer.address;
-  cardElement.querySelector(`.popup__text--price`).textContent = `${room.offer.price}₽/ночь`;
-  cardElement.querySelector(`.popup__type`).textContent = RoomTypeValue[room.offer.type];
-  cardElement.querySelector(`.popup__text--capacity`).textContent = `${room.offer.rooms} комнат для  ${room.offer.guests} гостей`;
-  cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${room.offer.checkin}, выезд до ${room.offer.checkout}`;
-  cardElement.querySelector(`.popup__description`).textContent = room.offer.description;
-  renderFeatures(cardElement.querySelector(`.popup__features`), room.offer.features);
-  renderPhotos(cardElement.querySelector(`.popup__photos`), room.offer.photos);
+  cardElement.querySelector(`.popup__avatar`).src = avatar;
+  cardElement.querySelector(`.popup__title`).textContent = title;
+  cardElement.querySelector(`.popup__text--address`).textContent = address;
+  cardElement.querySelector(`.popup__text--price`).textContent = `${price}₽/ночь`;
+  cardElement.querySelector(`.popup__type`).textContent = RoomTypeValue[type];
+  cardElement.querySelector(`.popup__text--capacity`).textContent = `${rooms} комнат для  ${guests} гостей`;
+  cardElement.querySelector(`.popup__text--time`).textContent = `Заезд после ${checkin}, выезд до ${checkout}`;
+  cardElement.querySelector(`.popup__description`).textContent = description;
+  renderFeatures(cardElement.querySelector(`.popup__features`), features);
+  renderPhotos(cardElement.querySelector(`.popup__photos`), photos);
 
   return cardElement;
 };
@@ -376,17 +408,6 @@ const getIsPinAvaliable = (pin) => {
     checkMatchFeatures(pin, getArrayFeatures());
 };
 
-const pressingFeatures = (filterFeatures) => {
-  const features = filterFeatures.querySelectorAll(`input[type=checkbox]`);
-  features.forEach((feature) => {
-    feature.addEventListener(`click`, () => {
-      feature.toggleAttribute(`checked`);
-    });
-  });
-};
-
-pressingFeatures(housingFeatures);
-
 const getFiltredPins = (pinsArray) => {
   window.card.hide();
   window.pin.clear();
@@ -411,6 +432,10 @@ const getFiltredPins = (pinsArray) => {
   return result;
 };
 
+const setDefault = () => {
+  mapFilters.reset();
+};
+
 const onLoadSuccess = (data) => {
   pins = data.slice();
   window.pin.show(getFiltredPins(pins));
@@ -426,12 +451,12 @@ const loadData = () => {
 };
 
 window.filter = {
-  pins,
   loadData,
   mapFilters,
   housingFeatures,
   featuresContent,
   onChange,
+  setDefault
 };
 
 })();
@@ -468,7 +493,7 @@ const changeDisabled = (elements) => {
 const changeDisabledItems = () => {
   changeDisabled(filters);
   changeDisabled([filterFeatures]);
-  window.form.changeDisabled(window.form.formFieldset);
+  window.form.changeDisabled();
 };
 
 const activate = () => {
@@ -505,7 +530,6 @@ const getStateDeactive = () => {
 };
 
 window.map = {
-  map,
   changeDisabledItems,
   getIsMapActive,
   getStateActive,
@@ -543,10 +567,22 @@ const addPinEvent = (room, pinElement) => {
 };
 
 const getElement = (room) => {
+  const {
+    location: {
+      x,
+      y
+    },
+    author: {
+      avatar
+    },
+    offer: {
+      title
+    }
+  } = room;
   const pinElement = pinTemplate.cloneNode(true);
-  pinElement.setAttribute(`style`, `left: ${room.location.x - PinSize.PIN_WIDTH / 2}px; top: ${room.location.y - PinSize.PIN_HEIGHT}px`);
-  pinElement.querySelector(`img`).src = room.author.avatar;
-  pinElement.querySelector(`img`).alt = room.offer.title;
+  pinElement.setAttribute(`style`, `left: ${x - PinSize.PIN_WIDTH / 2}px; top: ${y - PinSize.PIN_HEIGHT}px`);
+  pinElement.querySelector(`img`).src = avatar;
+  pinElement.querySelector(`img`).alt = title;
 
   return pinElement;
 };
@@ -582,8 +618,7 @@ const clear = () => {
 
 window.pin = {
   show,
-  clear,
-  pinContainer
+  clear
 };
 
 })();
@@ -795,8 +830,8 @@ const syncTime = (firstTime, secondTime) => {
   filling.reportValidity();
 };
 
-const changeDisabled = (elements) => {
-  elements.forEach((filter) => {
+const changeDisabled = () => {
+  formFieldset.forEach((filter) => {
     if (window.map.getIsMapActive()) {
       filter.removeAttribute(`disabled`);
     } else {
@@ -850,11 +885,11 @@ const showMessage = (message) => {
 
 const removePopupOk = () => {
   if (formMessageOk) {
-    const onDocumentPressingKey = (evt) => {
+    const onDocumentKeyDown = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageOk);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
       }
     };
@@ -864,11 +899,11 @@ const removePopupOk = () => {
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageOk);
         document.removeEventListener(`click`, onDocumentClick);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
       }
     };
 
-    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`keydown`, onDocumentKeyDown);
     document.addEventListener(`click`, onDocumentClick);
   }
 };
@@ -876,13 +911,13 @@ const removePopupOk = () => {
 const removePopupError = () => {
   const errorButton = document.querySelector(`.error__button`);
   if (formMessageError) {
-    const onDocumentPressingKey = (evt) => {
+    const onDocumentKeyDown = (evt) => {
       evt.preventDefault();
       if (evt.key === window.card.eventValue.KEY_ESCAPE || evt.key === window.card.eventValue.KEY_ESCAPE_ABBREVIATED) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
-        errorButton.removeEventListener(`mousedown`, onButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonMouseDown);
       }
     };
 
@@ -890,25 +925,25 @@ const removePopupError = () => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
-        errorButton.removeEventListener(`mousedown`, onButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonMouseDown);
       }
     };
 
-    const onButtonClick = (evt) => {
+    const onButtonMouseDown = (evt) => {
       evt.preventDefault();
       if (evt.which === window.card.eventValue.MOUSE_LEFT) {
         main.removeChild(formMessageError);
-        document.removeEventListener(`keydown`, onDocumentPressingKey);
+        document.removeEventListener(`keydown`, onDocumentKeyDown);
         document.removeEventListener(`click`, onDocumentClick);
-        errorButton.removeEventListener(`mousedown`, onButtonClick);
+        errorButton.removeEventListener(`mousedown`, onButtonMouseDown);
       }
     };
 
-    document.addEventListener(`keydown`, onDocumentPressingKey);
+    document.addEventListener(`keydown`, onDocumentKeyDown);
     document.addEventListener(`click`, onDocumentClick);
-    errorButton.addEventListener(`mousedown`, onButtonClick);
+    errorButton.addEventListener(`mousedown`, onButtonMouseDown);
   }
 };
 
@@ -918,20 +953,13 @@ const onLoadError = (error) => {
   throw error;
 };
 
-const setDefaultFeatures = () => {
-  window.filter.housingFeatures.remove();
-  window.filter.mapFilters.appendChild(window.filter.featuresContent);
-};
-
 const setDefault = () => {
   window.pin.clear();
   window.map.getStateDeactive();
   window.card.hide();
   filling.reset();
-  setDefaultFeatures();
-
-  window.filter.mapFilters.reset();
-
+  window.form.addFormValidation();
+  window.filter.setDefault();
   window.moving.setDefaultAddress();
   window.photo.setDefault();
 };
@@ -954,7 +982,6 @@ formReset.addEventListener(`click`, () => {
 
 window.form = {
   setAddress,
-  filling,
   changeMapActive,
   formFieldset,
   addFormValidation,
@@ -1169,7 +1196,6 @@ window.filter.onChange();
 window.map.changeDisabledItems();
 window.form.addFormValidation();
 window.photo.onChange();
-window.customError.hide();
 
 })();
 
