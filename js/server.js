@@ -14,13 +14,12 @@ const XhrMethod = {
   POST: `POST`
 };
 
-const interact = (method, onSuccess, onError, data) => {
-  let urlAddress = `https://21.javascript.pages.academy/keksobooking`;
+const XhrUrl = {
+  LOAD: `https://21.javascript.pages.academy/keksobooking/data`,
+  UPDATE: `https://21.javascript.pages.academy/keksobooking`
+};
 
-  if (method === XhrMethod.GET) {
-    urlAddress = `https://21.javascript.pages.academy/keksobooking/data`;
-  }
-
+const getXhrInstance = (onSuccess, onError) => {
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
@@ -60,11 +59,25 @@ const interact = (method, onSuccess, onError, data) => {
 
   xhr.timeout = TIMEOUT_STATUS;
 
-  xhr.open(`${method}`, urlAddress);
-  xhr.send(data);
+  return xhr;
 };
 
+const load = (onSuccess, onError) => {
+  const xhr = getXhrInstance(onSuccess, onError);
+
+  xhr.open(XhrMethod.GET, XhrUrl.LOAD);
+  xhr.send();
+}
+
+const update = (onSuccess, onError, data) => {
+  const xhr = getXhrInstance(onSuccess, onError);
+
+  xhr.open(XhrMethod.POST, XhrUrl.UPDATE);
+  xhr.send(data);
+}
+
 window.server = {
-  interact,
-  XhrMethod
+  load,
+  update
 };
+

@@ -49,7 +49,7 @@ const addEventCloseCard = (cardElement) => {
 };
 
 const hide = () => {
-  if (card !== null) {
+  if (card) {
     card.remove();
     card = null;
   }

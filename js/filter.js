@@ -144,7 +144,7 @@ const onLoadError = (error) => {
 };
 
 const loadData = () => {
-  window.server.interact(window.server.XhrMethod.GET, onLoadSuccess, onLoadError);
+  window.server.load(onLoadSuccess, onLoadError);
 };
 
 window.filter = {

@@ -22,12 +22,12 @@ const XhrMethod = {
   POST: `POST`
 };
 
-const interact = (method, onSuccess, onError, data) => {
-  let urlAddress = `https://21.javascript.pages.academy/keksobooking`;
+const XhrUrl = {
+  LOAD: `https://21.javascript.pages.academy/keksobooking/data`,
+  UPDATE: `https://21.javascript.pages.academy/keksobooking`
+};
 
-  if (method === XhrMethod.GET) {
-    urlAddress = `https://21.javascript.pages.academy/keksobooking/data`;
-  }
+const getXhrInstance = (onSuccess, onError) => {
   const xhr = new XMLHttpRequest();
   xhr.responseType = `json`;
 
@@ -67,14 +67,28 @@ const interact = (method, onSuccess, onError, data) => {
 
   xhr.timeout = TIMEOUT_STATUS;
 
-  xhr.open(`${method}`, urlAddress);
-  xhr.send(data);
+  return xhr;
 };
 
-window.server =  {
-  interact,
-  XhrMethod
+const load = (onSuccess, onError) => {
+  const xhr = getXhrInstance(onSuccess, onError);
+
+  xhr.open(XhrMethod.GET, XhrUrl.LOAD);
+  xhr.send();
+}
+
+const update = (onSuccess, onError, data) => {
+  const xhr = getXhrInstance(onSuccess, onError);
+
+  xhr.open(XhrMethod.POST, XhrUrl.UPDATE);
+  xhr.send(data);
+}
+
+window.server = {
+  load,
+  update
 };
+
 
 })();
 
@@ -215,7 +229,7 @@ const addEventCloseCard = (cardElement) => {
 };
 
 const hide = () => {
-  if (card !== null) {
+  if (card) {
     card.remove();
     card = null;
   }
@@ -460,7 +474,7 @@ const onLoadError = (error) => {
 };
 
 const loadData = () => {
-  window.server.interact(window.server.XhrMethod.GET, onLoadSuccess, onLoadError);
+  window.server.load(onLoadSuccess, onLoadError);
 };
 
 window.filter = {
@@ -918,8 +932,7 @@ const onLoadSuccess = () => {
 
 filling.addEventListener(`submit`, (evt) => {
   evt.preventDefault();
-
-  window.server.interact(window.server.XhrMethod.POST, onLoadSuccess, onLoadError, new FormData(filling));
+  window.server.update(onLoadSuccess, onLoadError, new FormData(filling));
 });
 
 formReset.addEventListener(`click`, () => {

@@ -277,8 +277,7 @@ const onLoadSuccess = () => {
 
 filling.addEventListener(`submit`, (evt) => {
   evt.preventDefault();
-
-  window.server.interact(window.server.XhrMethod.POST, onLoadSuccess, onLoadError, new FormData(filling));
+  window.server.update(onLoadSuccess, onLoadError, new FormData(filling));
 });
 
 formReset.addEventListener(`click`, () => {
