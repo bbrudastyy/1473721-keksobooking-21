@@ -67,14 +67,14 @@ const load = (onSuccess, onError) => {
 
   xhr.open(XhrMethod.GET, XhrUrl.LOAD);
   xhr.send();
-}
+};
 
 const update = (onSuccess, onError, data) => {
   const xhr = getXhrInstance(onSuccess, onError);
 
   xhr.open(XhrMethod.POST, XhrUrl.UPDATE);
   xhr.send(data);
-}
+};
 
 window.server = {
   load,
