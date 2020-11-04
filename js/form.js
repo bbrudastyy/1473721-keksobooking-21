@@ -71,7 +71,7 @@ const verifyRoom = (roomElement, capacityElement) => {
   const capacityValue = parseInt(capacityElement.value, 10);
 
   if (!isRoomValid(roomValue, capacityValue)) {
-    message = `Неверное кол-во гостей`;
+    message = `Неверное количество комнат`;
   }
 
   roomElement.setCustomValidity(message);
